@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Compiled CSS
+static/css/style.css
+static/css/style.css.map
+
+# Windows 
+.DS_Store
+Thumbs.db
+*Zone.Identifier
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Cache
+.sass-cache/
+*.scssc
+
+# Hugo
+public/
+resources/
+.env

@@ -1,0 +1,225 @@
+/* ============================================================
+   review.css — review & confirm booking form
+   ============================================================ */
+
+body {
+  font-size: 14px;
+  padding-bottom: 90px;
+}
+
+/* ── Top bar ─────────────────────────────────────────────────── */
+.top-bar {
+  position: sticky;
+  top: 3px;
+  z-index: 150;
+  background: var(--white);
+  border-bottom: 1px solid var(--cream);
+  padding: 14px 0;
+  margin-bottom: 28px;
+}
+
+.top-bar-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.top-sub {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-top: 4px;
+}
+
+/* ── Section cards ──────────────────────────────────────────── */
+.section-card {
+  background: var(--white);
+  border: 1px solid var(--cream);
+  border-radius: var(--radius);
+  margin-bottom: 18px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.section-head {
+  background: var(--ink);
+  color: var(--white);
+  padding: 10px 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-head .icon { font-size: 13px; opacity: .85; }
+
+.section-body { padding: 22px 20px; }
+
+/* Section accent colours */
+.head-blue   { background: var(--head-blue); }
+.head-green  { background: var(--head-green); }
+.head-rust   { background: var(--head-rust); }
+.head-purple { background: var(--head-purple); }
+.head-teal   { background: var(--head-teal); }
+.head-grey   { background: var(--head-grey); }
+
+
+/* ── Monospace DB column hint ───────────────────────────────── */
+.db-col {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--faint);
+  margin-top: 3px;
+  letter-spacing: .3px;
+}
+
+/* ── Gold accent for financial fields ───────────────────────── */
+.financial-field .form-control {
+  border-left: 3px solid var(--gold-lt);
+}
+
+/* ── Badges ──────────────────────────────────────────────────── */
+.ai-badge {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: .8px;
+  background: #e6f2fc;
+  color: #1a68a0;
+  border-radius: 3px;
+  padding: 1px 5px;
+  text-transform: uppercase;
+}
+
+.db-badge {
+  background: #e6f8ee;
+  color: #1a6a3a;
+}
+
+
+/* ── Lookup row ─────────────────────────────────────────────── */
+.lookup-row {
+  display: grid;
+  grid-template-columns: 200px 120px 1fr;
+  gap: 10px;
+  align-items: end;
+}
+
+@media (max-width: 600px) {
+  .lookup-row { grid-template-columns: 1fr 1fr; }
+}
+
+.lookup-note {
+  font-size: 13px;
+  color: var(--mid);
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+#lookup-result {
+  font-size: 13px;
+  padding: 4px 0;
+  line-height: 1.5;
+}
+
+/* ── Itinerary preview table ────────────────────────────────── */
+.itinerary-preview {
+  font-size: 12.5px;
+  overflow-x: auto;
+}
+
+.itin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.itin-table thead th {
+  font-size: 10.5px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #aaa;
+  font-weight: 600;
+  padding: 6px 8px 10px;
+  border-bottom: 2px solid var(--cream);
+  text-align: left;
+}
+
+.itin-table tbody tr { border-bottom: 1px solid #f0ece4; }
+.itin-table tbody tr:last-child { border-bottom: none; }
+
+.itin-table td {
+  padding: 7px 8px;
+  vertical-align: top;
+  line-height: 1.45;
+}
+
+.itin-day  { font-weight: 600; }
+.itin-dest { color: var(--mid); font-style: italic; }
+.itin-date { color: var(--mid); }
+.itin-desc { color: var(--ink); }
+
+/* ── Misc ────────────────────────────────────────────────────── */
+.placeholder-note {
+  font-size: 11.5px;
+  color: #bbb;
+  font-style: italic;
+  margin-bottom: 14px;
+}
+
+.error-alert {
+  background: #fdf0ee;
+  border: 1px solid #f0c4b8;
+  color: var(--red);
+  border-radius: var(--radius);
+  padding: 13px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+
+code.table-ref {
+  background: rgba(255, 255, 255, .15);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+}
+
+/* ── Sticky footer ──────────────────────────────────────────── */
+.sticky-footer {
+  position: fixed;
+  inset: auto 0 0 0;
+  background: var(--white);
+  border-top: 1px solid var(--cream);
+  padding: 14px 0;
+  z-index: 150;
+}
+
+.sticky-footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.footer-hint {
+  font-size: 12.5px;
+  color: var(--mid);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.footer-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.footer-spacer { height: 80px; }

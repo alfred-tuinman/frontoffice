@@ -1,0 +1,40 @@
+
+/* ── File pill ──────────────────────────────────────────────── */
+#file-pill {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 11px 16px;
+  background: var(--cream);
+  border-radius: var(--radius);
+  font-family: 'DM Mono', monospace;
+  font-size: 12.5px;
+  animation: fadeIn .2s ease;
+}
+
+#file-pill.visible { display: flex; }
+
+.pill-icon { flex-shrink: 0; }
+
+.pill-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pill-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--red);
+  font-size: 15px;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: background var(--transition);
+}
+
+.pill-remove:hover { background: rgba(168, 56, 32, .1); }
+

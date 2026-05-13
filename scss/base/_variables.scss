@@ -1,0 +1,31 @@
+/* ── Design tokens ──────────────────────────────────────────── */
+:root {
+  --ink:        #12110f;
+  --paper:      #f7f3ec;
+  --cream:      #ede8de;
+  --white:      #ffffff;
+  --gold:       #b89a52;
+  --gold-lt:    #ddd0a4;
+  --gold-bg:    #fdf8ef;
+  --red:        #a83820;
+  --mid:        #7a7268;
+  --faint:      #c8c2b4;
+  --green:      #1a4a2e;
+  --green-bg:   #f0faf4;
+  --green-bd:   #b7dfc5;
+  --purple:     #4a1a5a;
+  --purple-bg:  #f7f0ff;
+  --purple-bd:  #cdb8dd;
+
+  /* Section header accents */
+  --head-blue:   #1F4E79;
+  --head-green:  #375623;
+  --head-rust:   #833c00;
+  --head-purple: #3b3272;
+  --head-teal:   #1d5a5a;
+  --head-grey:   #3a3a3a;
+
+  --radius:     6px;
+  --shadow:     0 2px 32px rgba(18, 17, 15, .07);
+  --transition: .2s cubic-bezier(.4, 0, .2, 1);
+}

@@ -1,0 +1,745 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card">
+  <form id="upload-form" method="POST" action="/upload" enctype="multipart/form-data">
+
+    <div id="dropzone">
+      <input type="file" name="pdf" id="file-input" accept=".pdf">
+      <span class="dz-icon">📄</span>
+      <span class="dz-label">Drop booking PDF here</span>
+      <span class="dz-sub">or click to browse</span>
+    </div>
+
+    <div id="file-pill">
+      <span class="pill-icon">📎</span>
+      <span class="pill-name" id="pill-name"></span>
+      <button type="button" class="pill-remove" id="pill-remove" aria-label="Remove file">✕</button>
+    </div>
+
+    <button type="submit" id="submit-btn" disabled>Extract &amp; Review</button>
+  </form>
+
+  {% if error %}
+  <div class="error-box">⚠ {{ error }}</div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+
+<!-- ── Top bar ──────────────────────────────────────────────── -->
+<div class="top-bar">
+  <div class="container">
+    <div class="top-bar-inner">
+      <div>
+        <div class="wordmark">Booking <em>Converter</em></div>
+        <div class="top-sub">Review &amp; Confirm — {{ q.PrincipalClient or 'New Booking' }}</div>
+      </div>
+      <a href="/" class="btn btn-outline">← New upload</a>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="max-width:960px">
+
+  <!-- ── Existing record lookup ───────────────────────────────── -->
+  <div class="section-card" id="lookup-card">
+    <div class="section-head" style="background:#2a5a2a"><span class="icon">🔍</span>Existing Record Check</div>
+    <div class="section-body">
+      <p class="lookup-note">
+        If this booking already exists in the database, enter its
+        <strong>Quotations_id</strong> below — the form will <strong>update</strong>
+        that record instead of creating a duplicate.
+        Leave blank to create a new record.
+      </p>
+      <div class="lookup-row">
+        <div class="field">
+          <label class="form-label" for="lookup-input">Quotations_id (if updating)</label>
+          <input class="form-control" type="number" id="lookup-input" placeholder="e.g. 1042">
+        </div>
+        <div class="field" style="justify-content:flex-end">
+          <button type="button" class="btn btn-outline" id="lookup-btn">Check DB</button>
+        </div>
+        <div id="lookup-result"></div>
+      </div>
+
+      <input type="hidden" name="_existing_Quotations_id"  id="h_quot_id" value="">
+      <input type="hidden" name="_existing_itineraries_id" id="h_itin_id" value="">
+    </div>
+  </div>
+
+  {% if db_error %}
+  <div class="error-alert">⚠ <strong>Database error:</strong> {{ db_error }}</div>
+  {% endif %}
+
+  <form method="POST" action="/submit/{{ token }}" id="review-form">
+
+    <!-- ── 1. Client & Booking Reference ──────────────────────── -->
+    <div class="section-card">
+      <div class="section-head head-blue"><span class="icon">🪪</span>Client &amp; Booking Reference</div>
+      <div class="section-body">
+        <div class="grid grid-4">
+          <div class="field">
+            <label class="form-label" for="QuotationRef">Quotation Ref <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="QuotationRef" name="QuotationRef" value="{{ q.QuotationRef or '' }}">
+            <span class="db-col">QuotationRef</span>
+          </div>
+          <div class="field span-3">
+            <label class="form-label" for="PrincipalClient">Principal Client <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="PrincipalClient" name="PrincipalClient" value="{{ q.PrincipalClient or '' }}">
+            <span class="db-col">PrincipalClient</span>
+          </div>
+
+          <div class="field">
+            <label class="form-label" for="PaxName">Last Name <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="PaxName" name="PaxName" value="{{ q.PaxName or '' }}">
+            <span class="db-col">PaxName</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="PaxFirstName">First Name(s) <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="PaxFirstName" name="PaxFirstName" value="{{ q.PaxFirstName or '' }}">
+            <span class="db-col">PaxFirstName</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="Email">Email</label>
+            <input class="form-control" id="Email" type="email" name="Email" value="{{ q.Email or '' }}">
+            <span class="db-col">Email</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="Reference">Reference</label>
+            <input class="form-control" id="Reference" name="Reference" value="">
+            <span class="db-col">Reference</span>
+          </div>
+
+          <div class="field">
+            <label class="form-label" for="TourCode">Tour Code <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="TourCode" name="TourCode" value="{{ q.TourCode or '' }}">
+            <span class="db-col">TourCode</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="TourNo">Tour No.</label>
+            <input class="form-control" id="TourNo" type="number" name="TourNo" value="">
+            <span class="db-col">TourNo</span>
+          </div>
+          <div class="field span-full">
+            <label class="form-label" for="Comment">Comment / Notes <span class="ai-badge">AI</span></label>
+            <textarea class="form-control" id="Comment" name="Comment" rows="2">{{ q.Comment or '' }}</textarea>
+            <span class="db-col">Comment</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 2. Pax & Accommodation ──────────────────────────────── -->
+    <div class="section-card">
+      <div class="section-head head-green"><span class="icon">🛏</span>Pax &amp; Accommodation</div>
+      <div class="section-body">
+        <div class="grid grid-6">
+          <div class="field">
+            <label class="form-label" for="NumPax">Total Pax <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="NumPax" type="number" name="NumPax" value="{{ q.NumPax or '' }}">
+            <span class="db-col">NumPax</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="NumSingles">Singles <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="NumSingles" type="number" name="NumSingles" value="{{ q.NumSingles or 0 }}">
+            <span class="db-col">NumSingles</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="NumDoubles">Doubles <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="NumDoubles" type="number" name="NumDoubles" value="{{ q.NumDoubles or 0 }}">
+            <span class="db-col">NumDoubles</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="NumTwins">Twins <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="NumTwins" type="number" name="NumTwins" value="{{ q.NumTwins or 0 }}">
+            <span class="db-col">NumTwins</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="NumTriples">Triples <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="NumTriples" type="number" name="NumTriples" value="{{ q.NumTriples or 0 }}">
+            <span class="db-col">NumTriples</span>
+          </div>
+          <div class="field" style="justify-content:flex-end;padding-bottom:4px">
+            <div class="check-item">
+              <input type="checkbox" name="ExtraBed" id="ExtraBed">
+              <label for="ExtraBed">Extra Bed</label>
+            </div>
+          </div>
+          <div class="field span-3">
+            <label class="form-label" for="HotelTypes_id">Hotel Type</label>
+            <select class="form-select" id="HotelTypes_id" name="HotelTypes_id">
+              <option value="">— select —</option>
+              {% for o in lookups.hotel_types %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">HotelTypes_id</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 3. Travel Dates ─────────────────────────────────────── -->
+    <div class="section-card">
+      <div class="section-head head-rust"><span class="icon">📅</span>Travel Dates</div>
+      <div class="section-body">
+        <div class="grid grid-4">
+          <div class="field">
+            <label class="form-label" for="DateOfArrival">Date of Arrival <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="DateOfArrival" type="date" name="DateOfArrival" value="{{ q.DateOfArrival or '' }}">
+            <span class="db-col">DateOfArrival</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="DateOfDeparture">Date of Departure <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="DateOfDeparture" type="date" name="DateOfDeparture" value="{{ q.DateOfDeparture or '' }}">
+            <span class="db-col">DateOfDeparture</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="StartDate">Start Date <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="StartDate" type="date" name="StartDate" value="{{ q.StartDate or '' }}">
+            <span class="db-col">StartDate</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="EndDate">End Date <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="EndDate" type="date" name="EndDate" value="{{ q.EndDate or '' }}">
+            <span class="db-col">EndDate</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="Nights">Nights <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="Nights" type="number" name="Nights" value="{{ q.Nights or '' }}">
+            <span class="db-col">Nights</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="BookingRecdDate">Booking Recd Date</label>
+            <input class="form-control" id="BookingRecdDate" type="date" name="BookingRecdDate" value="{{ today }}">
+            <span class="db-col">BookingRecdDate</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="BookingEntryDate">Booking Entry Date</label>
+            <input class="form-control" id="BookingEntryDate" type="date" name="BookingEntryDate" value="{{ today }}">
+            <span class="db-col">BookingEntryDate</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 4. Flight Details ───────────────────────────────────── -->
+    <div class="section-card">
+      <div class="section-head head-teal"><span class="icon">✈️</span>Flight Details</div>
+      <div class="section-body">
+        <div class="grid grid-3">
+          <div class="field">
+            <label class="form-label" for="FlightNo">Inbound Flight No <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="FlightNo" name="FlightNo" value="{{ q.FlightNo or '' }}">
+            <span class="db-col">FlightNo</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="ETA">ETA <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="ETA" name="ETA" placeholder="HH:MM" value="{{ q.ETA or '' }}">
+            <span class="db-col">ETA</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="PlaceFrom">Place From <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="PlaceFrom" name="PlaceFrom" value="{{ q.PlaceFrom or '' }}">
+            <span class="db-col">PlaceFrom</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="FlightNoDept">Outbound Flight No <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="FlightNoDept" name="FlightNoDept" value="{{ q.FlightNoDept or '' }}">
+            <span class="db-col">FlightNoDept</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="ETD">ETD <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="ETD" name="ETD" placeholder="HH:MM" value="{{ q.ETD or '' }}">
+            <span class="db-col">ETD</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="PlaceTo">Place To <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="PlaceTo" name="PlaceTo" value="{{ q.PlaceTo or '' }}">
+            <span class="db-col">PlaceTo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 5. Destination & Tour ───────────────────────────────── -->
+    <div class="section-card">
+      <div class="section-head" style="background:#2e4a7a"><span class="icon">🌍</span>Destination &amp; Tour</div>
+      <div class="section-body">
+        <div class="grid grid-3">
+          <div class="field">
+            <label class="form-label" for="Countries_id">Country</label>
+            <select class="form-select" id="Countries_id" name="Countries_id">
+              <option value="">— select —</option>
+              {% for o in lookups.countries %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">Countries_id</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="StartCities_id">Start City</label>
+            <select class="form-select" id="StartCities_id" name="StartCities_id">
+              <option value="">— select —</option>
+              {% for o in lookups.start_cities %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">StartCities_id</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="EndCities_id">End City</label>
+            <select class="form-select" id="EndCities_id" name="EndCities_id">
+              <option value="">— select —</option>
+              {% for o in lookups.end_cities %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">EndCities_id</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="Vehicles_id">Vehicle</label>
+            <select class="form-select" id="Vehicles_id" name="Vehicles_id">
+              <option value="">— select —</option>
+              {% for o in lookups.vehicles %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">Vehicles_id</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="CarHireAgents_id">Car Hire Agent</label>
+            <select class="form-select" id="CarHireAgents_id" name="CarHireAgents_id">
+              <option value="">— select —</option>
+              {% for o in lookups.car_hire_agents %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">CarHireAgents_id</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="CarHireCities_id">Car Hire City</label>
+            <select class="form-select" id="CarHireCities_id" name="CarHireCities_id">
+              <option value="">— select —</option>
+              {% for o in lookups.car_hire_cities %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">CarHireCities_id</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 6. Quotation & Agents ──────────────────────────────── -->
+    <div class="section-card">
+      <div class="section-head head-purple"><span class="icon">📋</span>Quotation &amp; Agents</div>
+      <div class="section-body">
+        <div class="grid grid-4">
+          <div class="field">
+            <label class="form-label" for="QuotationNo">Quotation No <span class="ai-badge db-badge">DB Auto</span></label>
+            <input class="form-control" id="QuotationNo" type="number" name="QuotationNo" value="{{ auto_no.QuotationNo or '' }}">
+            <span class="db-col">QuotationNo</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="QuotationYearRef">Year Ref <span class="ai-badge db-badge">DB Auto</span></label>
+            <input class="form-control" id="QuotationYearRef" type="number" name="QuotationYearRef" value="{{ auto_no.QuotationYearRef or '' }}">
+            <span class="db-col">QuotationYearRef</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="QuotationDate">Quotation Date</label>
+            <input class="form-control" id="QuotationDate" type="date" name="QuotationDate" value="{{ today }}">
+            <span class="db-col">QuotationDate</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="Currencies_id">Currency</label>
+            <select class="form-select" id="Currencies_id" name="Currencies_id">
+              <option value="">— select —</option>
+              {% for o in lookups.currencies %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">Currencies_id</span>
+          </div>
+
+          <div class="field">
+            <label class="form-label" for="PrincipalAgents_id">Principal Agent</label>
+            <select class="form-select" id="PrincipalAgents_id" name="PrincipalAgents_id">
+              <option value="">— select —</option>
+              {% for o in lookups.principal_agents %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">PrincipalAgents_id</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="Managers_id">Manager</label>
+            <select class="form-select" id="Managers_id" name="Managers_id">
+              <option value="">— select —</option>
+              {% for o in lookups.managers %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">Managers_id</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="Consultants_id">Consultant</label>
+            <select class="form-select" id="Consultants_id" name="Consultants_id">
+              <option value="">— select —</option>
+              {% for o in lookups.consultants %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">Consultants_id</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="AdmUsers_id">Admin User</label>
+            <select class="form-select" id="AdmUsers_id" name="AdmUsers_id">
+              <option value="">— select —</option>
+              {% for o in lookups.adm_users %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">AdmUsers_id</span>
+          </div>
+
+          <div class="field">
+            <label class="form-label" for="MealPlans_id">Meal Plan</label>
+            <select class="form-select" id="MealPlans_id" name="MealPlans_id">
+              <option value="">— select —</option>
+              {% for o in lookups.meal_plans %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">MealPlans_id</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="Tickets_id">Tickets</label>
+            <select class="form-select" id="Tickets_id" name="Tickets_id">
+              <option value="">— select —</option>
+              {% for o in lookups.tickets %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">Tickets_id</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 7. Options & Flags ─────────────────────────────────── -->
+    <div class="section-card">
+      <div class="section-head head-grey"><span class="icon">🔧</span>Options &amp; Flags</div>
+      <div class="section-body">
+        <div class="check-row">
+          <div class="check-item">
+            <input type="checkbox" name="Guide" id="Guide" {% if q.Guide %}checked{% endif %}>
+            <label for="Guide">Guide Included</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" name="EntranceFees" id="EntranceFees" {% if q.EntranceFees %}checked{% endif %}>
+            <label for="EntranceFees">Entrance Fees</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" name="EconomyPax" id="EconomyPax">
+            <label for="EconomyPax">Economy Pax</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" name="TimePax" id="TimePax">
+            <label for="TimePax">Time Pax</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" name="domestic" id="domestic">
+            <label for="domestic">Domestic</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" name="DeptDomestic" id="DeptDomestic">
+            <label for="DeptDomestic">Dept Domestic</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" name="Confirmed" id="Confirmed">
+            <label for="Confirmed">Confirmed</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 8. Financial ───────────────────────────────────────── -->
+    <div class="section-card">
+      <div class="section-head" style="background:#5a3a00"><span class="icon">💰</span>Financial</div>
+      <div class="section-body">
+        <p class="placeholder-note">These fields are placeholders — fill in or leave blank to complete later.</p>
+        <div class="grid grid-4">
+          <div class="field financial-field">
+            <label class="form-label" for="BasicRate">Basic Rate</label>
+            <input class="form-control" id="BasicRate" type="number" step="0.01" name="BasicRate" placeholder="0.00">
+            <span class="db-col">BasicRate</span>
+          </div>
+          <div class="field financial-field">
+            <label class="form-label" for="BasicAmt">Basic Amount</label>
+            <input class="form-control" id="BasicAmt" type="number" step="0.01" name="BasicAmt" placeholder="0.00">
+            <span class="db-col">BasicAmt</span>
+          </div>
+          <div class="field financial-field">
+            <label class="form-label" for="ServiceTaxPerc">Service Tax %</label>
+            <input class="form-control" id="ServiceTaxPerc" type="number" step="0.01" name="ServiceTaxPerc" placeholder="0.00">
+            <span class="db-col">ServiceTaxPerc</span>
+          </div>
+          <div class="field financial-field">
+            <label class="form-label" for="ServiceTaxAmt">Service Tax Amt</label>
+            <input class="form-control" id="ServiceTaxAmt" type="number" step="0.01" name="ServiceTaxAmt" placeholder="0.00">
+            <span class="db-col">ServiceTaxAmt</span>
+          </div>
+          <div class="field financial-field">
+            <label class="form-label" for="QuotationAmt">Quotation Amount</label>
+            <input class="form-control" id="QuotationAmt" type="number" step="0.01" name="QuotationAmt" placeholder="0.00">
+            <span class="db-col">QuotationAmt</span>
+          </div>
+          <div class="field financial-field">
+            <label class="form-label" for="AdvanceAmt">Advance Amount</label>
+            <input class="form-control" id="AdvanceAmt" type="number" step="0.01" name="AdvanceAmt" placeholder="0.00">
+            <span class="db-col">AdvanceAmt</span>
+          </div>
+          <div class="field financial-field">
+            <label class="form-label" for="ExtraMargin">Extra Margin</label>
+            <input class="form-control" id="ExtraMargin" type="number" step="0.01" name="ExtraMargin" placeholder="0.00">
+            <span class="db-col">ExtraMargin</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="DueDate">Due Date</label>
+            <input class="form-control" id="DueDate" type="date" name="DueDate">
+            <span class="db-col">DueDate</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 9. Itineraries Record ──────────────────────────────── -->
+    <div class="section-card">
+      <div class="section-head head-purple" style="background:#4a1a5a">
+        <span class="icon">📁</span>Itineraries Record
+        <span style="font-size:10px;font-weight:400;opacity:.65;margin-left:6px">
+          → inserted into <code class="table-ref">itineraries</code> linked via Quotations_id
+        </span>
+      </div>
+      <div class="section-body">
+        <div class="grid grid-3">
+
+          <div class="field span-2">
+            <label class="form-label" for="itin_leadname">Lead Name <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="itin_leadname" name="itin_leadname" value="{{ q.PrincipalClient or '' }}">
+            <span class="db-col">leadname</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="itin_TourRef">Tour Ref <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="itin_TourRef" name="itin_TourRef" value="{{ q.QuotationRef or '' }}">
+            <span class="db-col">TourRef</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="itin_Status">Status</label>
+            <input class="form-control" id="itin_Status" type="number" name="itin_Status" value="1" placeholder="1">
+            <span class="db-col">Status</span>
+          </div>
+
+          <div class="field">
+            <label class="form-label" for="itin_departuredate">Departure Date <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="itin_departuredate" type="date" name="itin_departuredate" value="{{ q.DateOfDeparture or '' }}">
+            <span class="db-col">departuredate</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="itin_arrtime">Arrival Time (HH:MM)</label>
+            <input class="form-control" id="itin_arrtime" type="time" name="itin_arrtime" value="{{ q.ETA or '' }}">
+            <span class="db-col">arrtime</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="itin_depdate">Dep Date <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="itin_depdate" type="date" name="itin_depdate" value="{{ q.DateOfDeparture or '' }}">
+            <span class="db-col">depdate</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="itin_deptime">Dep Time (HH:MM)</label>
+            <input class="form-control" id="itin_deptime" type="time" name="itin_deptime" value="{{ q.ETD or '' }}">
+            <span class="db-col">deptime</span>
+          </div>
+
+          <div class="field">
+            <label class="form-label" for="itin_arr_cities_id">Arrival City</label>
+            <select class="form-select" id="itin_arr_cities_id" name="itin_arr_cities_id">
+              <option value="">— select —</option>
+              {% for o in lookups.arr_cities %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">arr_cities_id</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="itin_dep_cities_id">Departure City</label>
+            <select class="form-select" id="itin_dep_cities_id" name="itin_dep_cities_id">
+              <option value="">— select —</option>
+              {% for o in lookups.dep_cities %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">dep_cities_id</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="itin_countries_id">Country</label>
+            <select class="form-select" id="itin_countries_id" name="itin_countries_id">
+              <option value="">— select —</option>
+              {% for o in lookups.countries %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">countries_id</span>
+          </div>
+
+          <div class="field">
+            <label class="form-label" for="itin_pax">Pax <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="itin_pax" type="number" name="itin_pax" value="{{ q.NumPax or '' }}">
+            <span class="db-col">pax</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="itin_singles">Singles <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="itin_singles" type="number" name="itin_singles" value="{{ q.NumSingles or 0 }}">
+            <span class="db-col">singles</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="itin_doubles">Doubles <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="itin_doubles" type="number" name="itin_doubles" value="{{ q.NumDoubles or 0 }}">
+            <span class="db-col">doubles</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="itin_twins">Twins <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="itin_twins" type="number" name="itin_twins" value="{{ q.NumTwins or 0 }}">
+            <span class="db-col">twins</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="itin_triples">Triples <span class="ai-badge">AI</span></label>
+            <input class="form-control" id="itin_triples" type="number" name="itin_triples" value="{{ q.NumTriples or 0 }}">
+            <span class="db-col">triples</span>
+          </div>
+
+          <div class="field span-2">
+            <label class="form-label" for="itin_TourLeader">Tour Leader</label>
+            <input class="form-control" id="itin_TourLeader" name="itin_TourLeader">
+            <span class="db-col">TourLeader</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="itin_TourLeaderCountries_id">Tour Leader Country</label>
+            <select class="form-select" id="itin_TourLeaderCountries_id" name="itin_TourLeaderCountries_id">
+              <option value="">— select —</option>
+              {% for o in lookups.tour_leader_countries %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">TourLeaderCountries_id</span>
+          </div>
+
+          <div class="field">
+            <label class="form-label" for="itin_masters_id">Master</label>
+            <select class="form-select" id="itin_masters_id" name="itin_masters_id">
+              <option value="">— select —</option>
+              {% for o in lookups.masters %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">masters_id</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="itin_web_users_id">Web User</label>
+            <select class="form-select" id="itin_web_users_id" name="itin_web_users_id">
+              <option value="">— select —</option>
+              {% for o in lookups.web_users %}
+              <option value="{{ o.id }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="db-col">web_users_id</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="itin_IssuedBy">Issued By</label>
+            <input class="form-control" id="itin_IssuedBy" name="itin_IssuedBy">
+            <span class="db-col">IssuedBy</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="itin_IssuedOn">Issued On</label>
+            <input class="form-control" id="itin_IssuedOn" type="date" name="itin_IssuedOn" value="{{ today }}">
+            <span class="db-col">IssuedOn</span>
+          </div>
+          <div class="field">
+            <label class="form-label" for="itin_sessionid">Session ID</label>
+            <input class="form-control" id="itin_sessionid" name="itin_sessionid">
+            <span class="db-col">sessionid</span>
+          </div>
+
+          <div class="field span-full">
+            <div class="check-row">
+              <div class="check-item">
+                <input type="checkbox" name="itin_flightbooked" id="itin_flightbooked">
+                <label for="itin_flightbooked">Flight Booked</label>
+              </div>
+              <div class="check-item">
+                <input type="checkbox" name="itin_resident" id="itin_resident">
+                <label for="itin_resident">Resident</label>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 10. Itinerary Preview ──────────────────────────────── -->
+    <div class="section-card">
+      <div class="section-head head-grey"><span class="icon">🗺</span>Extracted Itinerary <span style="opacity:.5;font-weight:400;margin-left:4px">(read-only preview)</span></div>
+      <div class="section-body itinerary-preview" style="overflow-x:auto">
+        <table class="itin-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Day</th>
+              <th>Date</th>
+              <th>Destination</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in itinerary %}
+            <tr>
+              <td class="itin-day">{{ row.sr_no }}</td>
+              <td>{{ row.day_name }}</td>
+              <td class="itin-date">{{ row.date }}</td>
+              <td class="itin-dest">{{ row.destination }}</td>
+              <td class="itin-desc">{{ row.description }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="footer-spacer"></div>
+  </form>
+
+</div><!-- /container -->
+
+<!-- ── Sticky footer ──────────────────────────────────────────── -->
+<div class="sticky-footer">
+  <div class="container" style="max-width:960px">
+    <div class="sticky-footer-inner">
+      <div class="footer-hint">
+        Review all fields before saving.
+        <span><span class="ai-badge">AI</span> = pre-filled from PDF</span>
+      </div>
+      <div class="footer-actions">
+        <a href="/" class="btn btn-outline">Cancel</a>
+        <button type="submit" form="review-form" class="btn btn-primary" id="save-btn">Save to Database</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

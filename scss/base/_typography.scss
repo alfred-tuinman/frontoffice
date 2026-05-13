@@ -1,0 +1,32 @@
+// This is strictly about how text looks:
+
+/* ── Base ───────────────────────────────────────────────────── */
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+}
+
+/* Top accent bar */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold) 0%, var(--red) 50%, var(--gold) 100%);
+  z-index: 200;
+}
+
+/* ── Heading ────────────────────────────────────────────────── */
+h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--green);
+  margin-bottom: 8px;
+  letter-spacing: .01em;
+}
+

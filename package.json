@@ -1,0 +1,22 @@
+{
+  "dependencies": {
+    "nunjucks": "^3.2.4"
+  },
+  "name": "booking_app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "sass": "^1.99.0"
+  },
+  "scripts": {
+    "server": "node server.js",
+    "sass": "sass --watch scss:static/css",
+    "dev": "concurrently \"npm run server\" \"npm run sass\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module"
+}

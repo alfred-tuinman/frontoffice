@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card">
+  <div class="check-wrap">✅</div>
+
+  <h1>{% if is_update %}Booking Updated{% else %}Booking Saved{% endif %}</h1>
+
+  <p class="sub">
+    {{ client }} has been
+    {% if is_update %}<strong>updated</strong>{% else %}<strong>saved</strong>{% endif %}
+    in the database.
+  </p>
+  <p class="ref-note">Ref: {{ quotation_ref }}</p>
+
+  <div class="ids-grid">
+    <div class="id-box quot">
+      <span class="id-label">Quotations ID</span>
+      <span class="id-num">#{{ quot_id }}</span>
+      <span class="id-table">quotations</span>
+    </div>
+    <div class="id-box itin">
+      <span class="id-label">Itineraries ID</span>
+      <span class="id-num">#{{ itin_id }}</span>
+      <span class="id-table">itineraries</span>
+    </div>
+  </div>
+
+  {% if has_excel %}
+  <a href="/download/{{ token }}" class="btn-dl">⬇ Download Confirmation Excel</a>
+  {% endif %}
+
+  <a href="/" class="btn-new">← Convert another booking</a>
+</div>
+
+
+{% endblock %}

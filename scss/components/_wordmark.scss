@@ -1,0 +1,15 @@
+/* ── Wordmark ────────────────────────────────────────────────── */
+.wordmark {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1;
+  letter-spacing: .02em;
+}
+
+.wordmark em {
+  color: var(--gold);
+  font-style: italic;
+}
+
