@@ -5,17 +5,17 @@
 <div class="card">
   <form id="upload-form" method="POST" action="/upload" enctype="multipart/form-data">
 
-    <div id="dropzone">
+    <div class="dropzone" id="dropzone">
       <input type="file" name="pdf" id="file-input" accept=".pdf">
-      <span class="dz-icon">📄</span>
-      <span class="dz-label">Drop booking PDF here</span>
-      <span class="dz-sub">or click to browse</span>
+      <span class="dropzone__icon">📄</span>
+      <span class="dropzone__label">Drop booking PDF here</span>
+      <span class="dropzone__sub">or click to browse</span>
     </div>
 
     <div id="file-pill">
-      <span class="pill-icon">📎</span>
-      <span class="pill-name" id="pill-name"></span>
-      <button type="button" class="pill-remove" id="pill-remove" aria-label="Remove file">✕</button>
+      <span class="file-pill__icon">📎</span>
+      <span class="file-pill__name" id="pill-name"></span>
+      <button type="button" class="file-pill__remove" id="pill-remove" aria-label="Remove file">✕</button>
     </div>
 
     <button type="submit" id="submit-btn" disabled>Extract &amp; Review</button>
@@ -37,7 +37,7 @@
         <div class="wordmark">Booking <em>Converter</em></div>
         <div class="top-sub">Review &amp; Confirm — {{ q.PrincipalClient or 'New Booking' }}</div>
       </div>
-      <a href="/" class="btn btn-outline">← New upload</a>
+      <a href="/" class="btn btn--outline">← New upload</a>
     </div>
   </div>
 </div>
@@ -60,7 +60,7 @@
           <input class="form-control" type="number" id="lookup-input" placeholder="e.g. 1042">
         </div>
         <div class="field" style="justify-content:flex-end">
-          <button type="button" class="btn btn-outline" id="lookup-btn">Check DB</button>
+          <button type="button" class="btn btn--outline" id="lookup-btn">Check DB</button>
         </div>
         <div id="lookup-result"></div>
       </div>
@@ -728,14 +728,14 @@
 <!-- ── Sticky footer ──────────────────────────────────────────── -->
 <div class="sticky-footer">
   <div class="container" style="max-width:960px">
-    <div class="sticky-footer-inner">
-      <div class="footer-hint">
+    <div class="sticky-footer__inner">
+      <div class="sticky-footer__hint">
         Review all fields before saving.
         <span><span class="ai-badge">AI</span> = pre-filled from PDF</span>
       </div>
-      <div class="footer-actions">
-        <a href="/" class="btn btn-outline">Cancel</a>
-        <button type="submit" form="review-form" class="btn btn-primary" id="save-btn">Save to Database</button>
+      <div class="sticky-footer__actions">
+        <a href="/" class="btn btn--outline">Cancel</a>
+        <button type="submit" form="review-form" class="btn btn--primary" id="save-btn">Save to Database</button>
       </div>
     </div>
   </div>

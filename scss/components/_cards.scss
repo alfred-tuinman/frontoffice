@@ -1,0 +1,122 @@
+// ─────────────────────────────────────────────────────────────
+// _cards.scss
+// ─────────────────────────────────────────────────────────────
+@use '../base/variables' as *;
+
+// ── Base card (upload page) ────────────────────────────────────
+.card {
+  background: $color-white;
+  border: 1px solid $color-border;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  padding: $sp-xl;
+  width: 100%;
+
+  @include respond-md { padding: $sp-lg; }
+}
+
+// ── Container widths ───────────────────────────────────────────
+.container {
+  width: 100%;
+  max-width: $container-max;
+  margin: 0 auto;
+  padding: 0 $sp-lg;
+}
+
+.container--sm { max-width: $container-sm; }
+.container--xs { max-width: $container-xs; }
+
+// ── Section card (review form) ─────────────────────────────────
+.section-card {
+  background: $color-white;
+  border: 1px solid $color-border;
+  border-radius: $radius;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.section-head {
+  @include section-head($color-ink);
+
+  .icon      { font-size: 14px; opacity: 0.8; }
+  .head-note { font-size: 10px; font-weight: 400; opacity: 0.65; margin-left: $sp-xs; }
+
+  code {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-family: $font-mono;
+    font-size: 10px;
+  }
+
+  // ── Colour variants ──────────────────────────────────────────
+  &--blue    { @include section-head($head-blue); }
+  &--green   { @include section-head($head-green); }
+  &--rust    { @include section-head($head-rust); }
+  &--teal    { @include section-head($head-teal); }
+  &--purple  { @include section-head($head-purple); }
+  &--dark    { @include section-head($head-dark); }
+  &--itin    { @include section-head($head-itin); }
+  &--lookup  { @include section-head($head-lookup); }
+  &--finance { @include section-head($head-finance); }
+  &--agents  { @include section-head($head-agents); }
+}
+
+.section-body {
+  padding: 20px $sp-lg;
+}
+
+// ── ID badges (success page) ───────────────────────────────────
+.id-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 28px;
+
+  @include respond-sm { grid-template-columns: 1fr; }
+}
+
+.id-box {
+  border-radius: $radius;
+  padding: 14px 16px;
+
+  &--quot {
+    background: $color-green-lt;
+    border: 1px solid $color-green-bd;
+
+    .id-label { color: #4a7a5a; }
+    .id-num   { color: $color-green; }
+  }
+
+  &--itin {
+    background: $color-purple-lt;
+    border: 1px solid $color-purple-bd;
+
+    .id-label { color: #6a4a7a; }
+    .id-num   { color: $color-purple; }
+  }
+}
+
+.id-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: $sp-xs;
+}
+
+.id-num {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.id-table-name {
+  display: block;
+  font-family: $font-mono;
+  font-size: 10px;
+  color: #aaa;
+  margin-top: 2px;
+}

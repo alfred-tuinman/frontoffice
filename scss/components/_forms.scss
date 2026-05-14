@@ -1,0 +1,136 @@
+// ─────────────────────────────────────────────────────────────
+// _forms.scss
+// ─────────────────────────────────────────────────────────────
+@use '../base/variables' as *;
+
+// ── Grid ──────────────────────────────────────────────────────
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: $sp-md 20px;
+
+  @include respond-md {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include respond-sm {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Column spans
+@each $n in 2, 3, 4, 5, 6, 7, 8, 9, 12 {
+  .span-#{$n} { grid-column: span #{$n}; }
+}
+
+@include respond-md {
+  @each $n in 2, 3, 4, 5, 6, 7, 8, 9 {
+    .span-#{$n} { grid-column: span 2; }
+  }
+  .span-12 { grid-column: span 2; }
+}
+
+@include respond-sm {
+  @each $n in 2, 3, 4, 5, 6, 7, 8, 9, 12 {
+    .span-#{$n} { grid-column: span 1; }
+  }
+}
+
+// ── Field wrapper ──────────────────────────────────────────────
+.field {
+  display: flex;
+  flex-direction: column;
+
+  &--financial {
+    input { border-left: 3px solid $color-gold; }
+  }
+
+  &--inline {
+    flex-direction: row;
+    align-items: center;
+    gap: $sp-sm;
+  }
+}
+
+// ── Inputs / selects / textarea ────────────────────────────────
+%input-base {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d5d0c8;
+  border-radius: $radius;
+  background: $color-white;
+  color: $color-ink;
+  font-family: $font-sans;
+  font-size: 13px;
+  transition:
+    border-color $transition-fast,
+    box-shadow $transition-fast;
+  appearance: none;
+
+  &:focus { @include focus-ring; }
+
+  &::placeholder { color: #bbb; }
+}
+
+input[type='text'],
+input[type='email'],
+input[type='number'],
+input[type='date'],
+input[type='time'],
+input[type='password'] {
+  @extend %input-base;
+}
+
+select {
+  @extend %input-base;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6458' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 32px;
+  cursor: pointer;
+}
+
+textarea {
+  @extend %input-base;
+  resize: vertical;
+  min-height: 60px;
+  line-height: 1.5;
+}
+
+// ── Checkbox group ─────────────────────────────────────────────
+.check-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: $sp-xs 0;
+
+  @include respond-sm {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: $sp-sm;
+  font-size: 13px;
+  color: $color-ink;
+  cursor: pointer;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+
+  input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    accent-color: $color-ink;
+    cursor: pointer;
+    flex-shrink: 0;
+    // override %input-base
+    padding: 0;
+    appearance: auto;
+  }
+}

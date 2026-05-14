@@ -1,32 +1,98 @@
-// This is strictly about how text looks:
+// ─────────────────────────────────────────────────────────────
+// _typography.scss
+// ─────────────────────────────────────────────────────────────
+@use 'variables' as *;
 
-/* ── Base ───────────────────────────────────────────────────── */
-html { scroll-behavior: smooth; }
+// ── Wordmark ───────────────────────────────────────────────────
+.wordmark {
+  font-family: $font-serif;
+  font-size: 22px;
+  color: $color-ink;
+  line-height: 1.1;
 
-body {
-  background: var(--paper);
-  color: var(--ink);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 15px;
+  em {
+    color: $color-gold;
+    font-style: italic;
+  }
 }
 
-/* Top accent bar */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0 0 auto 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--gold) 0%, var(--red) 50%, var(--gold) 100%);
-  z-index: 200;
+.wordmark-sub {
+  font-size: $font-size-xs;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: $color-mid;
+  margin-top: 2px;
 }
 
-/* ── Heading ────────────────────────────────────────────────── */
-h1 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 28px;
+// ── Hero header (upload page) ─────────────────────────────────
+.hero-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.hero-title {
+  font-family: $font-serif;
+  font-size: clamp(26px, 5vw, 42px);
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+
+  em {
+    color: $color-gold;
+    font-style: italic;
+  }
+}
+
+.hero-tagline {
+  margin-top: 10px;
+  font-size: $font-size-xs;
+  font-weight: 300;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: $color-mid;
+}
+
+.hero-rule {
+  margin: 18px auto 0;
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, $color-gold, transparent);
+}
+
+// ── Form labels ────────────────────────────────────────────────
+label {
+  font-size: $font-size-xs;
   font-weight: 600;
-  color: var(--green);
-  margin-bottom: 8px;
-  letter-spacing: .01em;
+  color: $color-mid;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
+// ── DB column hint ─────────────────────────────────────────────
+.db-col {
+  display: block;
+  font-family: $font-mono;
+  font-size: 10px;
+  color: #bbb;
+  margin-top: 3px;
+}
+
+// ── Misc ───────────────────────────────────────────────────────
+.placeholder-note {
+  font-size: $font-size-xs;
+  color: $color-muted;
+  font-style: italic;
+  margin-bottom: $sp-md;
+}
+
+.page-footer {
+  margin-top: $sp-xl;
+  font-size: $font-size-xs;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: $color-mid;
+  opacity: 0.5;
+}

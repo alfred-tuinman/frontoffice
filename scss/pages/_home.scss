@@ -1,21 +1,12 @@
-/* ============================================================
-   index.css — upload / landing page
-   ============================================================ */
+// ─────────────────────────────────────────────────────────────
+// _home.scss — Upload / index page
+// ─────────────────────────────────────────────────────────────
+@use '../base/variables' as *;
 
-body {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 64px 24px 100px;
-}
+// The upload page is mostly composed via shared components.
+// Page-specific overrides live here.
 
-/* ── Submit button ──────────────────────────────────────────── */
-#submit-btn {
-  display: block;
-  width: 100%;
-  margin-top: 20px;
-  padding: 15px;
-  font-size: 12px;
-  letter-spacing: 2px;
+.upload-card {
+  // Slightly narrower max-width for the centred upload card
+  max-width: $container-sm;
 }

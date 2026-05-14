@@ -1,9 +1,23 @@
 // ─────────────────────────────────────────────────────────────
-// _review.scss — Review & submit form page
+// _alerts.scss
 // ─────────────────────────────────────────────────────────────
 @use '../base/variables' as *;
 
-.review-page {
-  padding-top: 28px;
-  padding-bottom: $sp-lg;
+.alert {
+  border-radius: $radius;
+  padding: 12px 16px;
+  margin-bottom: $sp-md;
+  font-size: 13px;
+
+  &--error {
+    background: $color-red-bg;
+    border: 1px solid $color-red-bd;
+    color: $color-red;
+  }
+
+  &--info {
+    background: #f0f4ff;
+    border: 1px solid #c0d0f0;
+    color: #2a3a7a;
+  }
 }

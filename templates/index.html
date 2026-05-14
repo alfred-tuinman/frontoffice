@@ -5,20 +5,20 @@
 <div class="card">
   <form id="upload-form" method="POST" action="/upload" enctype="multipart/form-data">
 
-    <div id="dropzone">
+    <div class="dropzone" id="dropzone">
       <input type="file" name="pdf" id="file-input" accept=".pdf">
-      <span class="dz-icon">📄</span>
-      <span class="dz-label">Drop booking PDF here</span>
-      <span class="dz-sub">or click to browse</span>
+      <span class="dropzone__icon">📄</span>
+      <span class="dropzone__label">Drop booking PDF here</span>
+      <span class="dropzone__sub">or click to browse</span>
     </div>
 
     <div id="file-pill">
-      <span class="pill-icon">📎</span>
-      <span class="pill-name" id="pill-name"></span>
-      <button type="button" class="pill-remove" id="pill-remove" aria-label="Remove file">✕</button>
+      <span class="file-pill__icon">📎</span>
+      <span class="file-pill__name" id="pill-name"></span>
+      <button type="button" class="file-pill__remove" id="pill-remove" aria-label="Remove file">✕</button>
     </div>
 
-    <button type="submit" id="submit-btn" disabled>Extract &amp; Review</button>
+    <button type="submit" class="btn" id="submit-btn" disabled>Extract &amp; Review</button>
   </form>
 
   {% if error %}

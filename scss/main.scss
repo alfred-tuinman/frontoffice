@@ -1,23 +1,32 @@
-@use "base/fonts";
-@use "base/variables";
-@use "base/reset";
-@use "base/layout";
-@use "base/typography";
+// ─────────────────────────────────────────────────────────────
+// main.scss — Entry point
+// Compiled to: booking_app/static/booking.css
+// ─────────────────────────────────────────────────────────────
 
-@use "pages/header";
-@use "pages/footer";
+// ── Base ──────────────────────────────────────────────────────
+@use 'base/fonts';
+@use 'base/variables' as *;
+@use 'base/reset';
+@use 'base/layout';
+@use 'base/typography';
 
-@use "components/animation";
-@use "components/button";
-@use "components/card";
-@use "components/checkbox";
-@use "components/dropzone";
-@use "components/error";
-@use "components/form";
-@use "components/pill";
-@use "components/spinner";
-@use "components/wordmark";
+// ── Components ────────────────────────────────────────────────
+@use 'components/animation';
+@use 'components/cards';
+@use 'components/error';
+@use 'components/buttons';
+@use 'components/forms';
+@use 'components/badges';
+@use 'components/alerts';
+@use 'components/dropzone';
+@use 'components/navigation';
+@use 'components/tables';
+@use 'components/spinner';
+@use 'components/lookup';
 
-@use "pages/home";
-@use "pages/review";
-@use "pages/success";
+// ── Pages ─────────────────────────────────────────────────────
+@use 'pages/header';
+@use 'pages/footer';
+@use 'pages/home';
+@use 'pages/review';
+@use 'pages/success';

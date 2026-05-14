@@ -1,140 +1,43 @@
-/* ============================================================
-   success.css — booking saved / updated confirmation page
-   ============================================================ */
+// ─────────────────────────────────────────────────────────────
+// _success.scss — Booking saved confirmation page
+// ─────────────────────────────────────────────────────────────
+@use '../base/variables' as *;
 
-body {
-  min-height: 100vh;
+.success-card {
+  text-align: center;
+  max-width: $container-xs;
+  width: 100%;
+}
+
+.success-icon  { 
+  font-size: 52px; 
+  margin-bottom: $sp-md; 
+  display: block; 
+}
+
+.success-title {
+  font-family: $font-serif;
+  font-size: 28px;
+  color: $color-green;
+  margin-bottom: $sp-sm;
+}
+
+.success-sub {
+  font-size: $font-size-lg;
+  color: #555;
+  margin-bottom: $sp-sm;
+  line-height: 1.6;
+}
+
+.success-ref {
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: $sp-lg;
+}
+
+.success-actions {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 48px 24px;
-}
-
-/* ── Card ───────────────────────────────────────────────────── */
-.card {
-  max-width: 500px;
-  padding: 52px 44px;
-  text-align: center;
-  animation: rise .45s cubic-bezier(.2, .8, .4, 1) both;
-}
-
-
-/* ── Check icon ─────────────────────────────────────────────── */
-.check-wrap {
-  width: 64px;
-  height: 64px;
-  background: var(--green-bg);
-  border: 1.5px solid var(--green-bd);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 22px;
-  font-size: 28px;
-}
-
-/* ── Heading ────────────────────────────────────────────────── */
-
-.sub {
-  color: var(--mid);
-  font-size: 14px;
-  line-height: 1.65;
-  margin-bottom: 6px;
-}
-
-.ref-note {
-  font-size: 11.5px;
-  color: var(--mid);
-  opacity: .7;
-  margin-bottom: 28px;
-  letter-spacing: .5px;
-}
-
-/* ── IDs grid ───────────────────────────────────────────────── */
-.ids-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 12px;
-  margin-bottom: 30px;
 }
-
-.id-box {
-  border-radius: var(--radius);
-  padding: 16px 18px;
-  text-align: left;
-}
-
-.id-box.quot {
-  background: var(--green-bg);
-  border: 1px solid var(--green-bd);
-}
-
-.id-box.itin {
-  background: var(--purple-bg);
-  border: 1px solid var(--purple-bd);
-}
-
-.id-label {
-  display: block;
-  font-size: 10px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.id-box.quot .id-label { color: #4a7a5a; }
-.id-box.itin .id-label { color: #6a4a7a; }
-
-.id-num {
-  display: block;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-
-.id-box.quot .id-num { color: var(--green); }
-.id-box.itin .id-num { color: var(--purple); }
-
-.id-table {
-  display: block;
-  font-family: monospace;
-  font-size: 10.5px;
-  color: #aaa;
-  margin-top: 3px;
-}
-
-/* ── Actions ────────────────────────────────────────────────── */
-.btn-dl {
-  display: inline-block;
-  padding: 13px 30px;
-  background: var(--green);
-  color: var(--white);
-  border-radius: var(--radius);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  text-decoration: none;
-  transition: background var(--transition), transform var(--transition);
-  margin-bottom: 14px;
-}
-
-.btn-dl:hover {
-  background: #265a3e;
-  transform: translateY(-1px);
-}
-
-.btn-new {
-  display: block;
-  margin-top: 14px;
-  font-size: 13px;
-  color: var(--mid);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  transition: color var(--transition);
-}
-
-.btn-new:hover { color: var(--ink); }

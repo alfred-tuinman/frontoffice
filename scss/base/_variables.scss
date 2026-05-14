@@ -1,31 +1,110 @@
-/* ── Design tokens ──────────────────────────────────────────── */
-:root {
-  --ink:        #12110f;
-  --paper:      #f7f3ec;
-  --cream:      #ede8de;
-  --white:      #ffffff;
-  --gold:       #b89a52;
-  --gold-lt:    #ddd0a4;
-  --gold-bg:    #fdf8ef;
-  --red:        #a83820;
-  --mid:        #7a7268;
-  --faint:      #c8c2b4;
-  --green:      #1a4a2e;
-  --green-bg:   #f0faf4;
-  --green-bd:   #b7dfc5;
-  --purple:     #4a1a5a;
-  --purple-bg:  #f7f0ff;
-  --purple-bd:  #cdb8dd;
+// ─────────────────────────────────────────────────────────────
+// _variables.scss
+// ─────────────────────────────────────────────────────────────
 
-  /* Section header accents */
-  --head-blue:   #1F4E79;
-  --head-green:  #375623;
-  --head-rust:   #833c00;
-  --head-purple: #3b3272;
-  --head-teal:   #1d5a5a;
-  --head-grey:   #3a3a3a;
+// ── Colours ───────────────────────────────────────────────────
+$color-ink:       #1a1a2e;
+$color-paper:     #f5f0e8;
+$color-cream:     #ede8dc;
+$color-white:     #ffffff;
 
-  --radius:     6px;
-  --shadow:     0 2px 32px rgba(18, 17, 15, .07);
-  --transition: .2s cubic-bezier(.4, 0, .2, 1);
+$color-gold:      #c9a84c;
+$color-gold-lt:   #e8d5a3;
+$color-gold-bg:   #fdf8ef;
+
+$color-red:       #b5401c;
+$color-red-bg:    #fdf0ee;
+$color-red-bd:    #f5c2b8;
+
+$color-mid:       #6b6458;
+$color-muted:     #999999;
+$color-border:    #e0dbd0;
+
+$color-green:     #1a4a2e;
+$color-green-lt:  #f0faf3;
+$color-green-bd:  #b7dfc5;
+
+$color-blue:      #1f4e79;
+$color-blue-lt:   #dce6f1;
+
+$color-purple:    #4a1a5a;
+$color-purple-lt: #f5f0ff;
+$color-purple-bd: #cdb8dd;
+
+// ── Section head accent colours ────────────────────────────────
+$head-blue:    #1f4e79;
+$head-green:   #375623;
+$head-rust:    #833c00;
+$head-teal:    #1d5a5a;
+$head-purple:  #3b3272;
+$head-dark:    #3a3a3a;
+$head-itin:    #4a1a5a;
+$head-lookup:  #2a5a2a;
+$head-finance: #5a3a00;
+$head-agents:  #2e4a7a;
+
+// ── Typography ─────────────────────────────────────────────────
+$font-sans:  'DM Sans', system-ui, sans-serif;
+$font-serif: 'DM Serif Display', Georgia, serif;
+$font-mono:  'DM Mono', 'Courier New', monospace;
+
+$font-size-base: 14px;
+$font-size-sm:   12px;
+$font-size-xs:   11px;
+$font-size-lg:   16px;
+
+// ── Spacing ────────────────────────────────────────────────────
+$sp-xs:  4px;
+$sp-sm:  8px;
+$sp-md:  16px;
+$sp-lg:  24px;
+$sp-xl:  40px;
+$sp-xxl: 56px;
+
+// ── Layout ─────────────────────────────────────────────────────
+$radius:         4px;
+$shadow:         0 2px 24px rgba(26, 26, 46, 0.06);
+$container-max:  980px;
+$container-sm:   620px;
+$container-xs:   520px;
+$top-stripe-h:   4px;
+
+// ── Breakpoints ────────────────────────────────────────────────
+$bp-md: 768px; // tablet
+$bp-sm: 480px; // mobile
+
+// ── Transitions ────────────────────────────────────────────────
+$transition-fast: 0.15s ease;
+$transition-med:  0.2s ease;
+
+// ── Mixins ─────────────────────────────────────────────────────
+@mixin focus-ring {
+  outline: none;
+  border-color: $color-gold;
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
+}
+
+@mixin respond-md {
+  @media (max-width: #{$bp-md}) { @content; }
+}
+
+@mixin respond-sm {
+  @media (max-width: #{$bp-sm}) { @content; }
+}
+
+@mixin section-head($bg) {
+  background: $bg;
+  color: $color-white;
+  display: flex;
+  align-items: center;
+  gap: $sp-sm;
+  padding: 10px 20px;
+  font-size: $font-size-xs;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+@mixin gradient-stripe {
+  background: linear-gradient(90deg, $color-gold, $color-red, $color-gold);
 }

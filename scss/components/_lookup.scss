@@ -1,0 +1,29 @@
+// ─────────────────────────────────────────────────────────────
+// _lookup.scss
+// ─────────────────────────────────────────────────────────────
+@use '../base/variables' as *;
+
+.lookup-row {
+  display: grid;
+  grid-template-columns: 220px 130px 1fr;
+  gap: 12px;
+  align-items: end;
+
+  @include respond-md {
+    grid-template-columns: 1fr 1fr;
+
+    .lookup-result { grid-column: span 2; }
+  }
+
+  @include respond-sm {
+    grid-template-columns: 1fr;
+
+    .lookup-result { grid-column: span 1; }
+  }
+}
+
+.lookup-result {
+  font-size: 13px;
+  padding-top: $sp-xs;
+  line-height: 1.5;
+}
