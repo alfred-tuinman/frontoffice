@@ -1,122 +1,118 @@
-// ─────────────────────────────────────────────────────────────
-// _cards.scss
-// ─────────────────────────────────────────────────────────────
+// ============================================================
+// components/_cards.scss
+// ============================================================
 @use '../base/variables' as *;
+@use '../base/fonts' as *;
 
-// ── Base card (upload page) ────────────────────────────────────
 .card {
-  background: $color-white;
-  border: 1px solid $color-border;
+  background: $white;
+  border: 1px solid $cream;
   border-radius: $radius;
   box-shadow: $shadow;
-  padding: $sp-xl;
-  width: 100%;
-
-  @include respond-md { padding: $sp-lg; }
 }
 
-// ── Container widths ───────────────────────────────────────────
-.container {
-  width: 100%;
-  max-width: $container-max;
-  margin: 0 auto;
-  padding: 0 $sp-lg;
+.upload-card {
+    max-width: 600px;
+    margin: 5rem auto;
 }
 
-.container--sm { max-width: $container-sm; }
-.container--xs { max-width: $container-xs; }
+.review-card {
+    max-width: 1200px;
+    margin: 2rem auto;
+    display: none;
+}
 
-// ── Section card (review form) ─────────────────────────────────
 .section-card {
-  background: $color-white;
-  border: 1px solid $color-border;
+  background: $white;
+  border: 1px solid $cream;
   border-radius: $radius;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
   overflow: hidden;
+  box-shadow: $shadow;
 }
 
 .section-head {
-  @include section-head($color-ink);
+  background: $ink;
+  color: $white;
+  padding: 10px 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 
-  .icon      { font-size: 14px; opacity: 0.8; }
-  .head-note { font-size: 10px; font-weight: 400; opacity: 0.65; margin-left: $sp-xs; }
-
-  code {
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 3px;
-    padding: 1px 5px;
-    font-family: $font-mono;
-    font-size: 10px;
-  }
-
-  // ── Colour variants ──────────────────────────────────────────
-  &--blue    { @include section-head($head-blue); }
-  &--green   { @include section-head($head-green); }
-  &--rust    { @include section-head($head-rust); }
-  &--teal    { @include section-head($head-teal); }
-  &--purple  { @include section-head($head-purple); }
-  &--dark    { @include section-head($head-dark); }
-  &--itin    { @include section-head($head-itin); }
-  &--lookup  { @include section-head($head-lookup); }
-  &--finance { @include section-head($head-finance); }
-  &--agents  { @include section-head($head-agents); }
+  .icon { font-size: 13px; opacity: 0.85; }
 }
 
-.section-body {
-  padding: 20px $sp-lg;
+.section-body { padding: 22px 20px; }
+
+.head-blue   { background: $head-blue; }
+.head-green  { background: $head-green; }
+.head-rust   { background: $head-rust; }
+.head-purple { background: $head-purple; }
+.head-teal   { background: $head-teal; }
+.head-grey   { background: $head-grey; }
+
+code.table-ref {
+  background: rgba($white, 0.15);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-family: $font-mono;
+  font-size: 10px;
 }
 
-// ── ID badges (success page) ───────────────────────────────────
-.id-grid {
+.ids-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  margin-bottom: 28px;
-
-  @include respond-sm { grid-template-columns: 1fr; }
+  margin-bottom: 30px;
 }
 
 .id-box {
   border-radius: $radius;
-  padding: 14px 16px;
+  padding: 16px 18px;
+  text-align: left;
 
-  &--quot {
-    background: $color-green-lt;
-    border: 1px solid $color-green-bd;
+  &.quot {
+    background: $green-bg;
+    border: 1px solid $green-bd;
 
     .id-label { color: #4a7a5a; }
-    .id-num   { color: $color-green; }
+    .id-num   { color: $green; }
   }
 
-  &--itin {
-    background: $color-purple-lt;
-    border: 1px solid $color-purple-bd;
+  &.itin {
+    background: $purple-bg;
+    border: 1px solid $purple-bd;
 
     .id-label { color: #6a4a7a; }
-    .id-num   { color: $color-purple; }
+    .id-num   { color: $purple; }
   }
 }
 
 .id-label {
   display: block;
   font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  margin-bottom: $sp-xs;
+  font-weight: 600;
+  margin-bottom: 6px;
 }
 
 .id-num {
   display: block;
-  font-size: 24px;
+  font-family: $font-serif;
+  font-size: 26px;
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
 }
 
-.id-table-name {
+.id-table {
   display: block;
-  font-family: $font-mono;
-  font-size: 10px;
+  font-family: monospace;
+  font-size: 10.5px;
   color: #aaa;
-  margin-top: 2px;
+  margin-top: 3px;
 }

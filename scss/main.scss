@@ -1,32 +1,9 @@
 // ─────────────────────────────────────────────────────────────
 // main.scss — Entry point
-// Compiled to: booking_app/static/booking.css
+// Compiled to: static/css/main.css
 // ─────────────────────────────────────────────────────────────
 
 // ── Base ──────────────────────────────────────────────────────
-@use 'base/fonts';
-@use 'base/variables' as *;
-@use 'base/reset';
-@use 'base/layout';
-@use 'base/typography';
-
-// ── Components ────────────────────────────────────────────────
-@use 'components/animation';
-@use 'components/cards';
-@use 'components/error';
-@use 'components/buttons';
-@use 'components/forms';
-@use 'components/badges';
-@use 'components/alerts';
-@use 'components/dropzone';
-@use 'components/navigation';
-@use 'components/tables';
-@use 'components/spinner';
-@use 'components/lookup';
-
-// ── Pages ─────────────────────────────────────────────────────
-@use 'pages/header';
-@use 'pages/footer';
-@use 'pages/home';
-@use 'pages/review';
-@use 'pages/success';
+@use 'base';
+@use 'components';
+@use 'pages';

@@ -1,37 +1,31 @@
-// ─────────────────────────────────────────────────────────────
-// _tables.scss
-// ─────────────────────────────────────────────────────────────
+// ============================================================
+// components/_table.scss
+// ============================================================
 @use '../base/variables' as *;
+
+.itinerary-preview { font-size: 12.5px; overflow-x: auto; }
 
 .itin-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
 
-  th {
-    text-align: left;
-    padding: 8px 10px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1px;
+  thead th {
+    font-size: 10.5px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: $color-mid;
-    border-bottom: 2px solid $color-border;
+    color: #aaa;
+    font-weight: 600;
+    padding: 6px 8px 10px;
+    border-bottom: 2px solid $cream;
+    text-align: left;
   }
 
-  td {
-    padding: 8px 10px;
-    vertical-align: top;
-    border-bottom: 1px solid $color-cream;
-    line-height: 1.4;
-  }
-
-  tr:last-child td { border-bottom: none; }
-
-  // Column modifiers
-  .td-num  { color: $color-ink; font-weight: 600; width: 36px; }
-  .td-day  { color: $color-mid; width: 90px; }
-  .td-date { color: $color-mid; width: 100px; font-family: $font-mono; font-size: 11px; }
-  .td-dest { color: $color-mid; font-style: italic; width: 130px; }
-  .td-desc { color: $color-ink; }
+  tbody tr { border-bottom: 1px solid #f0ece4; }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 7px 8px; vertical-align: top; line-height: 1.45; }
 }
+
+.itin-day  { font-weight: 600; }
+.itin-dest { color: $mid; font-style: italic; }
+.itin-date { color: $mid; }
+.itin-desc { color: $ink; }

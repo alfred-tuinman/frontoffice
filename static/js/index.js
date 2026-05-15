@@ -16,23 +16,18 @@
   const submitBtn  = document.getElementById('submit-btn');
   const form       = document.getElementById('upload-form');
 
-  console.log('pill name is ',pillName);
-
   /* ── Drag & drop ─────────────────────────────────────────── */
   dropzone.addEventListener('dragover', (e) => {
     e.preventDefault();
     dropzone.classList.add('drag-over');
-    console.log('add');
   });
 
   dropzone.addEventListener('dragleave', () => {
     dropzone.classList.remove('drag-over');
-    console.log('remove');
   });
 
   dropzone.addEventListener('drop', (e) => {
     e.preventDefault();
-    console.log('remove drop');
     dropzone.classList.remove('drag-over');
     const file = e.dataTransfer.files[0];
     if (file && file.type === 'application/pdf') setFile(file);
@@ -69,6 +64,6 @@
   /* ── Submit loading state ────────────────────────────────── */
   form.addEventListener('submit', () => {
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="spinner"></span>Extracting with AI…';
+    submitBtn.innerHTML = '<span class="spinner"></span>Extracting';
   });
 })();

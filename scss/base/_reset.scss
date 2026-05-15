@@ -1,7 +1,8 @@
-// ─────────────────────────────────────────────────────────────
-// _reset.scss
-// ─────────────────────────────────────────────────────────────
+// ============================================================
+// base/_reset.scss
+// ============================================================
 @use 'variables' as *;
+@use 'fonts' as *;
 
 *,
 *::before,
@@ -13,38 +14,20 @@
 
 html {
   scroll-behavior: smooth;
-  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: $color-paper;
-  color: $color-ink;
-  font-family: $font-sans;
-  font-size: $font-size-base;
-  line-height: 1.5;
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+  background: $paper;
+  color: $ink;
+  font-family: "DM Sans";
+  font-size: 15px;
 
-img,
-svg {
-  display: block;
-  max-width: 100%;
-}
-
-button {
-  font-family: inherit;
-  cursor: pointer;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-input,
-select,
-textarea {
-  font-family: inherit;
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(90deg, $gold 0%, $red 50%, $gold 100%);
+    z-index: $z-accent;
+  }
 }

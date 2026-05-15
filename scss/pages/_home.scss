@@ -10,3 +10,12 @@
   // Slightly narrower max-width for the centred upload card
   max-width: $container-sm;
 }
+
+#file-pill {
+  text-align: center;
+}
+
+#submit-btn {
+  text-align: center;
+  width: 100%;
+}

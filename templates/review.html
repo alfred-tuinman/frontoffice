@@ -1,8 +1,15 @@
 {% extends "base.html" %}
 
+{% block header_extra %}
+<div class="tagline">
+  Review & Confirm — {{ q.PrincipalClient or 'New Booking' }}
+</div>
+<div class="rule"></div>
+{% endblock %}
+
 {% block content %}
 
-<div class="card">
+<div class="card review-card">
   <form id="upload-form" method="POST" action="/upload" enctype="multipart/form-data">
 
     <div class="dropzone" id="dropzone">
@@ -26,17 +33,11 @@
   {% endif %}
 </div>
 
-{% endblock %}
-
 
 <!-- ── Top bar ──────────────────────────────────────────────── -->
 <div class="top-bar">
   <div class="container">
     <div class="top-bar-inner">
-      <div>
-        <div class="wordmark">Booking <em>Converter</em></div>
-        <div class="top-sub">Review &amp; Confirm — {{ q.PrincipalClient or 'New Booking' }}</div>
-      </div>
       <a href="/" class="btn btn--outline">← New upload</a>
     </div>
   </div>

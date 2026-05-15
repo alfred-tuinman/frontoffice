@@ -1,0 +1,58 @@
+// ============================================================
+// components/_nav.scss
+// ============================================================
+@use '../base/variables' as *;
+
+.top-bar {
+  position: sticky;
+  top: 3px;
+  z-index: $z-topbar;
+  background: $white;
+  border-bottom: 1px solid $cream;
+  padding: 14px 0;
+  margin-bottom: 28px;
+}
+
+.top-bar-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.top-sub {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: $mid;
+  margin-top: 4px;
+}
+
+.sticky-footer {
+  position: fixed;
+  inset: auto 0 0 0;
+  background: $white;
+  border-top: 1px solid $cream;
+  padding: 14px 0;
+  z-index: $z-topbar;
+}
+
+.sticky-footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.footer-hint {
+  font-size: 12.5px;
+  color: $mid;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.footer-actions { display: flex; gap: 10px; align-items: center; }
+
+.footer-spacer { height: 80px; }

@@ -603,7 +603,8 @@ code.table-ref {
   border-radius: 4px;
   outline: none;
   transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  appearance: none;
+  -moz-appearance: none;
+       appearance: none;
   -webkit-appearance: none;
 }
 .form-control:focus, .form-select:focus {
@@ -956,6 +957,4 @@ footer {
   flex-direction: column;
   align-items: center;
   gap: 12px;
-}
-
-/*# sourceMappingURL=main.css.map */
+}/*# sourceMappingURL=main.css.map */

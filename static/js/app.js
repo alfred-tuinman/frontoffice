@@ -105,16 +105,18 @@ form.addEventListener("submit", async event => {
 
     formData.append("pdf", selectedFile);
 
-    const response = await fetch("/upload", {
+    const uploadUrl = form.action;
+
+    const response = await fetch(uploadUrl, {
       method: "POST",
       body: formData
     });
 
     if (!response.ok) {
-      throw new Error("Upload failed");
+      throw new Error(`Server returned ${response.status} for ${uploadUrl}`);
     }
 
-    console.log("Upload success");
+    window.location.href = response.url;
 
   } catch (error) {
 

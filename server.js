@@ -1,7 +1,8 @@
-import http from 'http';
-import fs from 'fs';
+import "dotenv/config";
+import express from 'express';
 import path from 'path';
 import nunjucks from 'nunjucks';
+import multer from 'multer';
 import { fileURLToPath } from 'url';
 
 const PORT = 3010;
@@ -9,75 +10,93 @@ const PORT = 3010;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const app = express();
+
+// -------------------------
+// NUNJUCKS
+// -------------------------
 nunjucks.configure('templates', {
-    autoescape: true
+    autoescape: true,
+    express: app
 });
 
-// your routes
-const routes = {
-    '/': 'index.html',
-    '/index.html': 'index.html',
-    '/review': 'review.html',
-    '/success': 'success.html'
-};
+// -------------------------
+// STATIC FILES
+// -------------------------
+app.use('/static', express.static(
+    path.join(__dirname, 'static')
+));
 
-http.createServer((req, res) => {
+// -------------------------
+// FILE UPLOADS
+// -------------------------
+const upload = multer({
+    dest: 'uploads/'
+});
 
-    // -------------------------
-    // 1. STATIC FILES
-    // -------------------------
-    if (req.url.startsWith('/static/')) {
+// -------------------------
+// ROUTES
+// -------------------------
 
-        const filePath = path.join(__dirname, req.url);
+app.get('/', (req, res) => {
 
-        fs.readFile(filePath, (err, data) => {
-            if (err) {
-                res.writeHead(404);
-                res.end('File not found');
-                return;
-            }
+    res.send(
+        nunjucks.render('index.html', {
+            title: 'Home'
+        })
+    );
+});
 
-            const ext = path.extname(filePath);
+app.get('/index.html', (req, res) => {
 
-            const mime = {
-                '.js': 'text/javascript',
-                '.css': 'text/css',
-                '.png': 'image/png',
-                '.jpg': 'image/jpeg',
-                '.svg': 'image/svg+xml'
-            };
+    res.redirect('/');
+});
 
-            res.writeHead(200, {
-                'Content-Type': mime[ext] || 'text/plain'
-            });
+app.get('/review', (req, res) => {
 
-            res.end(data);
-        });
+    res.send(
+        nunjucks.render('review.html', {
+            title: 'Review'
+        })
+    );
+});
 
-        return;
-    }
+app.get('/success', (req, res) => {
 
-    // -------------------------
-    // 2. HTML ROUTES
-    // -------------------------
-    const template = routes[req.url];
+    res.send(
+        nunjucks.render('success.html', {
+            title: 'Success'
+        })
+    );
+});
 
-    if (!template) {
-        res.writeHead(404);
-        res.end('404 Not Found');
-        return;
-    }
+// -------------------------
+// UPLOAD ROUTE
+// -------------------------
+app.post('/upload', upload.single('pdf'), (req, res) => {
 
-    const html = nunjucks.render(template, {
-        title: 'My Site'
-    });
+    console.log('Uploaded file:', req.file);
 
-    res.writeHead(200, {
-        'Content-Type': 'text/html'
-    });
+    // later:
+    // parse PDF
+    // extract booking info
+    // save to database
 
-    res.end(html);
+    res.redirect('/review');
+});
 
-}).listen(PORT, () => {
+// -------------------------
+// 404
+// -------------------------
+app.use((req, res) => {
+
+    res.status(404).send('404 Not Found');
+});
+
+// -------------------------
+// START SERVER
+// -------------------------
+app.listen(PORT, () => {
+
     console.log(`http://localhost:${PORT}`);
 });

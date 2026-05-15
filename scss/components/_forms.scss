@@ -1,136 +1,115 @@
-// ─────────────────────────────────────────────────────────────
-// _forms.scss
-// ─────────────────────────────────────────────────────────────
+// ============================================================
+// components/_forms.scss
+// ============================================================
 @use '../base/variables' as *;
+@use '../base/fonts' as *;
 
-// ── Grid ──────────────────────────────────────────────────────
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: $sp-md 20px;
-
-  @include respond-md {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @include respond-sm {
-    grid-template-columns: 1fr;
-  }
-}
-
-// Column spans
-@each $n in 2, 3, 4, 5, 6, 7, 8, 9, 12 {
-  .span-#{$n} { grid-column: span #{$n}; }
-}
-
-@include respond-md {
-  @each $n in 2, 3, 4, 5, 6, 7, 8, 9 {
-    .span-#{$n} { grid-column: span 2; }
-  }
-  .span-12 { grid-column: span 2; }
-}
-
-@include respond-sm {
-  @each $n in 2, 3, 4, 5, 6, 7, 8, 9, 12 {
-    .span-#{$n} { grid-column: span 1; }
-  }
-}
-
-// ── Field wrapper ──────────────────────────────────────────────
 .field {
   display: flex;
   flex-direction: column;
-
-  &--financial {
-    input { border-left: 3px solid $color-gold; }
-  }
-
-  &--inline {
-    flex-direction: row;
-    align-items: center;
-    gap: $sp-sm;
-  }
 }
 
-// ── Inputs / selects / textarea ────────────────────────────────
-%input-base {
+.form-control {
   width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #d5d0c8;
-  border-radius: $radius;
-  background: $color-white;
-  color: $color-ink;
+  padding: 9px 12px;
   font-family: $font-sans;
-  font-size: 13px;
-  transition:
-    border-color $transition-fast,
-    box-shadow $transition-fast;
+  font-size: 13.5px;
+  color: $ink;
+  background: $white;
+  border: 1px solid #d8d2c8;
+  border-radius: $radius;
+  outline: none;
+  transition: border-color $transition, box-shadow $transition;
   appearance: none;
+  -webkit-appearance: none;
 
-  &:focus { @include focus-ring; }
-
-  &::placeholder { color: #bbb; }
+  &:focus {
+    border-color: $gold;
+    box-shadow: 0 0 0 3px rgba($gold, 0.14);
+  }
 }
 
-input[type='text'],
-input[type='email'],
-input[type='number'],
-input[type='date'],
-input[type='time'],
-input[type='password'] {
-  @extend %input-base;
-}
-
-select {
-  @extend %input-base;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6458' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 32px;
-  cursor: pointer;
-}
-
-textarea {
-  @extend %input-base;
+textarea.form-control {
   resize: vertical;
-  min-height: 60px;
-  line-height: 1.5;
+  min-height: 66px;
+  line-height: 1.55;
 }
 
-// ── Checkbox group ─────────────────────────────────────────────
-.check-group {
+.form-select {
+  @extend .form-control;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.financial-field .form-control {
+  border-left: 3px solid $gold-lt;
+}
+
+.check-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
-  padding: $sp-xs 0;
-
-  @include respond-sm {
-    flex-direction: column;
-    gap: 12px;
-  }
+  gap: 14px 24px;
+  padding-top: 4px;
 }
 
 .check-item {
   display: flex;
   align-items: center;
-  gap: $sp-sm;
-  font-size: 13px;
-  color: $color-ink;
+  gap: 8px;
+  font-size: 13.5px;
   cursor: pointer;
-  font-weight: 400;
-  letter-spacing: 0;
-  text-transform: none;
 
   input[type='checkbox'] {
     width: 16px;
     height: 16px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    accent-color: $color-ink;
+    accent-color: $ink;
     cursor: pointer;
-    flex-shrink: 0;
-    // override %input-base
-    padding: 0;
-    appearance: auto;
   }
+}
+
+.lookup-row {
+  display: grid;
+  grid-template-columns: 200px 120px 1fr;
+  gap: 10px;
+  align-items: end;
+
+  @media (max-width: $bp-lookup) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.lookup-note {
+  font-size: 13px;
+  color: $mid;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+#lookup-result {
+  font-size: 13px;
+  padding: 4px 0;
+  line-height: 1.5;
+}
+
+.error-box,
+.error-alert {
+  padding: 13px 16px;
+  background: #fdf0ee;
+  border: 1px solid #f0c4b8;
+  border-radius: $radius;
+  color: $red;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.error-box   { margin-top: 18px; }
+.error-alert { margin-bottom: 20px; }
+
+.placeholder-note {
+  font-size: 11.5px;
+  color: #bbb;
+  font-style: italic;
+  margin-bottom: 14px;
 }

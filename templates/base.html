@@ -5,7 +5,14 @@
 
 <body>
 
-{% include "partials/header.html" %}
+<header>
+
+  {% include "partials/header.html" %}
+
+  {% block header_extra %}
+  {% endblock %}
+
+</header>
 
 {% block content %}
 {% endblock %}

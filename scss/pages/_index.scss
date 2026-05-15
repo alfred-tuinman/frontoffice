@@ -1,0 +1,9 @@
+// ============================================================
+// pages/_index.scss — forwards all page styles
+// ============================================================
+@forward 'header';
+@forward 'footer';
+
+@forward 'home';
+@forward 'review';
+@forward 'success';
