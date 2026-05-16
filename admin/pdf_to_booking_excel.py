@@ -11,102 +11,23 @@ Usage:
 
 import sys
 import json
-import re
 from pathlib import Path
 from datetime import datetime
 
 import pdfplumber
-import anthropic
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
-# ──────────────────────────────────────────────────────────────
-# 1. PDF TEXT EXTRACTION
-# ──────────────────────────────────────────────────────────────
-
-def extract_pdf_text(pdf_path: str) -> str:
-    with pdfplumber.open(pdf_path) as pdf:
-        pages = []
-        for page in pdf.pages:
-            text = page.extract_text(layout=True)
-            if text:
-                pages.append(text)
-    return "\n\n--- PAGE BREAK ---\n\n".join(pages)
+# Import the converter for superior rule-based parsing
+from converter import extract_pdf_text, parse_pdf_rules
 
 
 # ──────────────────────────────────────────────────────────────
 # 2. CLAUDE-POWERED PARSING
 # ──────────────────────────────────────────────────────────────
 
-SYSTEM_PROMPT = """You are a travel booking data extractor.
-Given raw text from a travel itinerary PDF, return ONLY a valid JSON object — no markdown fences, no explanation.
-
-Return exactly this structure:
-
-{
-  "quotation": {
-    "QuotationRef":      "<booking reference / booking number as a string>",
-    "PaxName":           "<principal guest last name>",
-    "PaxFirstName":      "<principal guest first name(s)>",
-    "PrincipalClient":   "<full name with title, e.g. Mr Stefan Anton Sauter>",
-    "Email":             "<email if present, else null>",
-    "NumPax":            <total number of travellers, integer>,
-    "NumSingles":        <single rooms, integer, 0 if none>,
-    "NumDoubles":        <double rooms, integer, 0 if none>,
-    "NumTwins":          <twin rooms, integer, 0 if none>,
-    "NumTriples":        <triple rooms, integer, 0 if none>,
-    "DateOfArrival":     "<DD.MM.YYYY, first day guests land in destination>",
-    "DateOfDeparture":   "<DD.MM.YYYY, day guests fly home>",
-    "StartDate":         "<DD.MM.YYYY, same as DateOfArrival>",
-    "EndDate":           "<DD.MM.YYYY, same as DateOfDeparture>",
-    "Nights":            <total number of nights, integer>,
-    "FlightNo":          "<inbound flight number if stated, else null>",
-    "FlightNoDept":      "<outbound flight number if stated, else null>",
-    "PlaceFrom":         "<origin country/city of travellers>",
-    "PlaceTo":           "<main destination country>",
-    "ETA":               "<arrival time HH:MM if stated, else null>",
-    "ETD":               "<departure time HH:MM if stated, else null>",
-    "Guide":             <true if a guide is included, else false>,
-    "EntranceFees":      <true if entrance fees are included, else false>,
-    "Comment":           "<any special requests or notes, else null>"
-  },
-  "guests": [
-    {"title": "Mr/Mrs/Ms/Dr", "first_name": "...", "last_name": "..."}
-  ],
-  "itinerary": [
-    {
-      "sr_no":       <integer, 1-based day number>,
-      "day_name":    "<e.g. Monday>",
-      "date":        "<DD.MM.YYYY>",
-      "destination": "<city or region name>",
-      "description": "<one sentence summary: transfers, activities, hotel name>"
-    }
-  ]
-}
-
-Rules for itinerary:
-- One entry per calendar day; merge all PDF elements on the same date.
-- Skip any day flagged 'This is for client information only' (pre-departure placeholder).
-- Plain English, third-person descriptions.
-- Include hotel names and key activities; omit booking codes.
-"""
-
-def parse_with_claude(raw_text: str) -> dict:
-    client = anthropic.Anthropic()
-    message = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=4096,
-        system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": raw_text}],
-    )
-    raw = message.content[0].text.strip()
-    raw = re.sub(r"^```(?:json)?\s*", "", raw)
-    raw = re.sub(r"\s*```$", "", raw)
-    return json.loads(raw)
-
-
 # ──────────────────────────────────────────────────────────────
-# 3. SHARED HELPERS & STYLES
+# 2. SHARED HELPERS & STYLES
 # ──────────────────────────────────────────────────────────────
 
 def to_date(date_str):
@@ -297,12 +218,13 @@ def build_excel(data: dict, output_path: str):
     build_db_sheet(wb.active, data["quotation"])
     build_itinerary_sheet(wb.create_sheet(), data)
     wb.save(output_path)
-    print(f"✅  Saved: {output_path}")
+    print(f"[OK] Saved: {output_path}")
 
 
 # ──────────────────────────────────────────────────────────────
 # 7. MAIN
 # ──────────────────────────────────────────────────────────────
+
 
 def main():
     if len(sys.argv) < 2:
@@ -312,19 +234,21 @@ def main():
     pdf_path    = sys.argv[1]
     output_path = sys.argv[2] if len(sys.argv) >= 3 else str(Path(pdf_path).with_suffix(".xlsx"))
 
-    print(f"📄  Reading PDF: {pdf_path}")
+    print(f"[PDF] Reading: {pdf_path}")
     raw_text = extract_pdf_text(pdf_path)
 
-    print("🤖  Parsing with Claude …")
-    data = parse_with_claude(raw_text)
+    print("[PARSE] Parsing with rule-based parser ...")
+    data = parse_pdf_rules(raw_text)
 
-    q = data["quotation"]
-    print(f"    Client : {q['PrincipalClient']}")
-    print(f"    Ref    : {q['QuotationRef']}")
-    print(f"    Nights : {q['Nights']}  |  Pax: {q['NumPax']}")
-    print(f"    Arrival: {q['DateOfArrival']} → Dep: {q['DateOfDeparture']}")
+    q = data.get('quotation', {})
+    print(f"  Client : {q.get('PrincipalClient')}")
+    print(f"  Ref    : {q.get('QuotationRef')}")
+    print(f"  Pax    : {q.get('NumPax')}")
+    print(f"  Arrival: {q.get('DateOfArrival')} -> Dep: {q.get('DateOfDeparture')}")
+    print(f"  Days   : {len(data.get('itinerary', []))} itinerary entries")
 
-    print("📊  Building Excel …")
+
+    print("[BUILD] Building Excel ...")
     build_excel(data, output_path)
 
 

@@ -6,6 +6,8 @@ const pillName = document.querySelector("#pill-name");
 const pillRemove = document.querySelector("#pill-remove");
 const submitBtn = document.querySelector("#submit-btn");
 const errorBox = document.querySelector("#error-box");
+const errorMessage = document.querySelector("#error-message");
+const loadingIndicator = document.querySelector("#loading-indicator");
 
 let selectedFile = null;
 
@@ -40,16 +42,22 @@ function clearFile() {
 
 function showError(message) {
 
-  errorBox.hidden = false;
+  loadingIndicator.style.display = "none";
 
-  errorBox.textContent = `⚠ ${message}`;
+  errorBox.style.display = "block";
+
+  errorMessage.textContent = `⚠ ${message}`;
+
+  submitBtn.disabled = false;
+
+  submitBtn.innerHTML = "Extract & Review";
 }
 
 function clearError() {
 
-  errorBox.hidden = true;
+  errorBox.style.display = "none";
 
-  errorBox.textContent = "";
+  errorMessage.textContent = "";
 }
 
 dropzone.addEventListener("dragover", event => {
@@ -94,7 +102,11 @@ form.addEventListener("submit", async event => {
 
   if (!selectedFile) return;
 
+  clearError();
+
   submitBtn.disabled = true;
+
+  loadingIndicator.style.display = "flex";
 
   submitBtn.innerHTML =
     `<span class="spinner"></span>Extracting with AI…`;
@@ -116,7 +128,7 @@ form.addEventListener("submit", async event => {
       throw new Error(`Server returned ${response.status} for ${uploadUrl}`);
     }
 
-    window.location.href = response.url;
+    window.location.href = '/review';
 
   } catch (error) {
 

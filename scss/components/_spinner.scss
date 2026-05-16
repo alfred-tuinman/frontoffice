@@ -18,3 +18,18 @@
   vertical-align: middle;
   flex-shrink: 0;
 }
+
+.loading-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.loading-message .spinner {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}

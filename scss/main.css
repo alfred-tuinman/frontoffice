@@ -302,7 +302,7 @@ body::before {
   background-color: rgb(240, 240, 240);
   color: #1a1a2e;
   opacity: 0.45;
-  cursor: not-allowed;
+  cursor: wait;
   transform: none;
 }
 .btn--primary {
@@ -805,6 +805,21 @@ textarea.form-control, textarea.form-select {
   animation: spin 0.7s linear infinite;
   vertical-align: middle;
   flex-shrink: 0;
+}
+
+.loading-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.loading-message .spinner {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
 }
 
 .itinerary-preview {

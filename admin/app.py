@@ -1,4 +1,13 @@
-"""app.py — Booking Converter web application."""
+"""app.py — Booking Converter web application.
+
+You can do without app.py! It's the legacy Flask backend and is completely optional.
+
+Our Node.js handles PDF uploads, calls the Python parsers, and manages the review/download flow
+converter.py does the actual parsing and Excel building
+parse_booking.py and build_excel_wrapper.py are Python wrappers that server.js spawns
+
+The Flask app (app.py) is only needed if you want an alternative Python-based web interface, which you don't need if you're using Node.js/Express.
+"""
 import os, sys, uuid, json, threading, time
 from pathlib import Path
 from datetime import datetime, date
@@ -8,13 +17,10 @@ from flask import (Flask, request, render_template, jsonify,
 
 sys.path.insert(0, str(Path(__file__).parent))
 import config
-from converter import extract_pdf_text, parse_with_claude
+from converter import extract_pdf_text, parse_with_claude, build_excel
 from db import (get_all_lookups, get_next_quotation_no,
                insert_quotation, insert_itinerary,
                update_quotation, update_itinerary, find_existing)
-
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from pdf_to_booking_excel import build_excel
 
 app = Flask(__name__)
 app.secret_key = config.SECRET_KEY

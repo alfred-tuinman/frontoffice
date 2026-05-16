@@ -38,6 +38,9 @@
 <div class="top-bar">
   <div class="container">
     <div class="top-bar-inner">
+      {% if excelFile %}
+      <a href="/download/excel" class="btn btn--primary">📥 Download Excel</a>
+      {% endif %}
       <a href="/" class="btn btn--outline">← New upload</a>
     </div>
   </div>
@@ -190,22 +193,22 @@
         <div class="grid grid-4">
           <div class="field">
             <label class="form-label" for="DateOfArrival">Date of Arrival <span class="ai-badge">AI</span></label>
-            <input class="form-control" id="DateOfArrival" type="date" name="DateOfArrival" value="{{ q.DateOfArrival or '' }}">
+            <input class="form-control" id="DateOfArrival" type="date" name="DateOfArrival" value="{{ (q.DateOfArrival or '') | formatDate }}">
             <span class="db-col">DateOfArrival</span>
           </div>
           <div class="field">
             <label class="form-label" for="DateOfDeparture">Date of Departure <span class="ai-badge">AI</span></label>
-            <input class="form-control" id="DateOfDeparture" type="date" name="DateOfDeparture" value="{{ q.DateOfDeparture or '' }}">
+            <input class="form-control" id="DateOfDeparture" type="date" name="DateOfDeparture" value="{{ (q.DateOfDeparture or '') | formatDate }}">
             <span class="db-col">DateOfDeparture</span>
           </div>
           <div class="field">
             <label class="form-label" for="StartDate">Start Date <span class="ai-badge">AI</span></label>
-            <input class="form-control" id="StartDate" type="date" name="StartDate" value="{{ q.StartDate or '' }}">
+            <input class="form-control" id="StartDate" type="date" name="StartDate" value="{{ (q.StartDate or '') | formatDate }}">
             <span class="db-col">StartDate</span>
           </div>
           <div class="field">
             <label class="form-label" for="EndDate">End Date <span class="ai-badge">AI</span></label>
-            <input class="form-control" id="EndDate" type="date" name="EndDate" value="{{ q.EndDate or '' }}">
+            <input class="form-control" id="EndDate" type="date" name="EndDate" value="{{ (q.EndDate or '') | formatDate }}">
             <span class="db-col">EndDate</span>
           </div>
           <div class="field">
@@ -547,7 +550,7 @@
 
           <div class="field">
             <label class="form-label" for="itin_departuredate">Departure Date <span class="ai-badge">AI</span></label>
-            <input class="form-control" id="itin_departuredate" type="date" name="itin_departuredate" value="{{ q.DateOfDeparture or '' }}">
+            <input class="form-control" id="itin_departuredate" type="date" name="itin_departuredate" value="{{ (q.DateOfDeparture or '') | formatDate }}">
             <span class="db-col">departuredate</span>
           </div>
           <div class="field">
@@ -557,7 +560,7 @@
           </div>
           <div class="field">
             <label class="form-label" for="itin_depdate">Dep Date <span class="ai-badge">AI</span></label>
-            <input class="form-control" id="itin_depdate" type="date" name="itin_depdate" value="{{ q.DateOfDeparture or '' }}">
+            <input class="form-control" id="itin_depdate" type="date" name="itin_depdate" value="{{ (q.DateOfDeparture or '') | formatDate }}">
             <span class="db-col">depdate</span>
           </div>
           <div class="field">
