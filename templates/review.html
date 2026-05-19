@@ -79,6 +79,7 @@
   {% endif %}
 
   <form method="POST" action="/submit/{{ token }}" id="review-form">
+    <input type="hidden" name="excelFile" value="{{ excelFile or '' }}">
 
     <!-- ── 1. Client & Booking Reference ──────────────────────── -->
     <div class="section-card">
@@ -735,7 +736,7 @@
     <div class="sticky-footer__inner">
       <div class="sticky-footer__hint">
         Review all fields before saving.
-        <span><span class="ai-badge">AI</span> = pre-filled from PDF</span>
+        <span>Pre-filled from PDF</span>
       </div>
       <div class="sticky-footer__actions">
         <a href="/" class="btn btn--outline">Cancel</a>

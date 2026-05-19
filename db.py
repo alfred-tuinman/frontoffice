@@ -22,9 +22,11 @@ def get_all_lookups() -> dict:
             cur = conn.cursor()
             for key, cfg in config.LOOKUP_TABLES.items():
                 try:
+                    where = f" WHERE {cfg['filter']}" if cfg.get('filter') else ""
                     cur.execute(
-                        f"SELECT {cfg['id_col']}, {cfg['name_col']} FROM {cfg['table']}" + (f" WHERE {cfg['filter']}" if cfg.get('filter') else "") + f" ORDER BY {cfg['name_col']}"
-                        f"FROM {cfg['table']} ORDER BY {cfg['name_col']}"
+                        f"SELECT {cfg['id_col']}, {cfg['name_col']} "
+                        f"FROM {cfg['table']}{where} "
+                        f"ORDER BY {cfg['name_col']}"
                     )
                     results[key] = [{"id": r[0], "name": r[1]} for r in cur.fetchall()]
                 except Exception:
@@ -35,19 +37,29 @@ def get_all_lookups() -> dict:
 
 
 def get_next_quotation_no() -> dict:
-    """Return the next QuotationNo and current year from the DB."""
+    """Return the next Quotations_id, QuotationNo, and current year from the DB."""
     try:
         with get_connection() as conn:
             cur = conn.cursor()
-            cur.execute("SELECT ISNULL(MAX(QuotationNo),0)+1, YEAR(GETDATE()) FROM quotations")
+            cur.execute(
+                "SELECT ISNULL(MAX(Quotations_id),0)+1, "
+                "       ISNULL(MAX(QuotationNo),0)+1, "
+                "       YEAR(GETDATE()) "
+                "FROM quotations"
+            )
             row = cur.fetchone()
-            return {"QuotationNo": row[0], "QuotationYearRef": row[1]}
+            return {
+                "Quotations_id":  row[0],
+                "QuotationNo":    row[1],
+                "QuotationYearRef": row[2],
+            }
     except Exception:
-        return {"QuotationNo": None, "QuotationYearRef": datetime.now().year}
+        return {"Quotations_id": None, "QuotationNo": None, "QuotationYearRef": datetime.now().year}
 
 
-# Columns we INSERT (excludes Quotations_id identity and audit columns set elsewhere)
+# Columns we INSERT (Quotations_id is NOT an identity col — must be supplied)
 _INSERT_COLS = [
+    "Quotations_id",
     "QuotationRef","PaxName","Email","EconomyPax","TimePax","NumPax",
     "NumSingles","NumDoubles","StartDate","QuotationDate","QuotationNo",
     "QuotationYearRef","MealPlans_id","Guide","Tickets_id","Nights",
@@ -65,6 +77,7 @@ _INSERT_COLS = [
 
 def insert_quotation(fields: dict) -> int:
     """Insert into quotations; return new Quotations_id."""
+
     cols, vals = [], []
     for col in _INSERT_COLS:
         v = fields.get(col)
@@ -73,18 +86,18 @@ def insert_quotation(fields: dict) -> int:
             vals.append(v)
 
     sql = (f"INSERT INTO quotations ({', '.join(cols)}) "
-           f"OUTPUT INSERTED.Quotations_id "
            f"VALUES ({', '.join(['?']*len(vals))})")
 
     with get_connection() as conn:
         cur = conn.cursor()
         cur.execute(sql, vals)
-        new_id = cur.fetchone()[0]
         conn.commit()
-        return new_id
+        return fields['Quotations_id']
 
-# itineraries columns we INSERT (excludes identity itineraries_id and auto-set created)
+
+# itineraries columns we INSERT (itineraries_id is NOT an identity col — must be supplied)
 _ITIN_COLS = [
+    "itineraries_id",
     "departuredate", "masters_id", "invoices_id", "sessionid",
     "leadname", "arr_cities_id", "arrtime", "dep_cities_id",
     "depdate", "deptime", "countries_id", "flightbooked",
@@ -93,8 +106,22 @@ _ITIN_COLS = [
     "IssuedOn", "Status", "IssuedBy", "TourRef", "Quotations_id",
 ]
 
+def get_next_itinerary_id() -> int:
+    """Return MAX(itineraries_id)+1 from the itineraries table."""
+    try:
+        with get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT ISNULL(MAX(itineraries_id),0)+1 FROM itineraries")
+            return cur.fetchone()[0]
+    except Exception:
+        return None
+
 def insert_itinerary(fields: dict) -> int:
     """Insert into itineraries linked to the new Quotations_id; return itineraries_id."""
+    # itineraries_id is NOT an identity col — generate it if not supplied
+    if not fields.get('itineraries_id'):
+        fields['itineraries_id'] = get_next_itinerary_id()
+
     cols, vals = [], []
     for col in _ITIN_COLS:
         v = fields.get(col)
@@ -103,15 +130,45 @@ def insert_itinerary(fields: dict) -> int:
             vals.append(v)
 
     sql = (f"INSERT INTO itineraries ({', '.join(cols)}) "
-           f"OUTPUT INSERTED.itineraries_id "
            f"VALUES ({', '.join(['?']*len(vals))})")
 
     with get_connection() as conn:
         cur = conn.cursor()
         cur.execute(sql, vals)
-        new_id = cur.fetchone()[0]
         conn.commit()
-        return new_id
+        return fields['itineraries_id']
+
+
+def find_by_quotation_ref(quotation_ref: str) -> dict | None:
+    """
+    Return Quotations_id and itineraries_id for an existing QuotationRef, or None.
+    """
+    try:
+        with get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT Quotations_id, QuotationRef, PrincipalClient "
+                "FROM quotations WHERE QuotationRef = ?",
+                [quotation_ref]
+            )
+            row = cur.fetchone()
+            if not row:
+                return None
+            result = {
+                "Quotations_id":  row[0],
+                "QuotationRef":   row[1],
+                "PrincipalClient": row[2],
+            }
+            cur.execute(
+                "SELECT itineraries_id FROM itineraries WHERE Quotations_id = ?",
+                [row[0]]
+            )
+            itin = cur.fetchone()
+            result["itineraries_id"] = itin[0] if itin else None
+            return result
+    except Exception:
+        return None
+
 
 def find_existing(quotations_id: int) -> dict | None:
     """
@@ -143,6 +200,38 @@ def find_existing(quotations_id: int) -> dict | None:
             itin = cur.fetchone()
             result["itineraries_id"] = itin[0] if itin else None
             return result
+    except Exception:
+        return None
+
+
+def find_itinerary_by_quotation(quotations_id: int, tour_ref: str = None) -> dict | None:
+    """
+    Return the itinerary linked to a Quotations_id.
+    Optionally filter by TourRef if provided.
+    """
+    try:
+        with get_connection() as conn:
+            cur = conn.cursor()
+            if tour_ref:
+                cur.execute(
+                    "SELECT itineraries_id, Quotations_id, TourRef FROM itineraries "
+                    "WHERE Quotations_id = ? AND TourRef = ?",
+                    [quotations_id, tour_ref]
+                )
+            else:
+                cur.execute(
+                    "SELECT itineraries_id, Quotations_id, TourRef FROM itineraries "
+                    "WHERE Quotations_id = ?",
+                    [quotations_id]
+                )
+            row = cur.fetchone()
+            if not row:
+                return None
+            return {
+                "itineraries_id": row[0],
+                "Quotations_id": row[1],
+                "TourRef": row[2],
+            }
     except Exception:
         return None
 
