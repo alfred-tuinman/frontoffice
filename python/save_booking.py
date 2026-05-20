@@ -6,7 +6,7 @@ from db import insert_quotation, insert_itinerary, get_next_quotation_no, find_b
 # ─────────────────────────────────────────────────────────────────────────
 # Configuration: Set to False to disable automatic itinerary processing
 # ─────────────────────────────────────────────────────────────────────────
-PROCESS_ITINERARIES = False  # Toggle itinerary automation here
+PROCESS_ITINERARIES = True  # Toggle itinerary automation here
 
 def save_booking(raw_data):
     """

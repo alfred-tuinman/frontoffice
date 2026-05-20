@@ -115,7 +115,7 @@ app.post('/upload', upload.single('pdf'), (req, res) => {
 
     // Call the Python parser to get JSON for the review form
     const pythonProcess = spawn('python', [
-        path.join(__dirname, 'parse_booking.py'),
+        path.join(__dirname, 'python', 'parse_booking.py'),
         tempPdfPath
     ]);
 
@@ -163,7 +163,7 @@ app.post('/upload', upload.single('pdf'), (req, res) => {
         const excelPath = path.join(bookingFolder, excelFileName);
 
         const excelProcess = spawn('python', [
-            path.join(__dirname, 'build_excel_wrapper.py'),
+            path.join(__dirname, 'python', 'build_excel_wrapper.py'),
             pdfPath,
             excelPath
         ]);
@@ -229,7 +229,7 @@ app.post('/submit/:token', (req, res) => {
 
     // Call Python script to save to database
     const pythonProcess = spawn('python', [
-        path.join(__dirname, 'save_booking.py'),
+        path.join(__dirname, 'python', 'save_booking.py'),
         JSON.stringify(bookingData)
     ]);
 
@@ -286,7 +286,7 @@ app.post('/submit/:token', (req, res) => {
         const excelFile = req.body.excelFile || req.session.excelFile;
         if (excelFile && fs.existsSync(excelFile) && result.Quotations_id) {
             const writeProcess = spawn('python', [
-                path.join(__dirname, 'write_ids_to_excel.py'),
+                path.join(__dirname, 'python', 'write_ids_to_excel.py'),
                 excelFile,
                 String(result.Quotations_id),
                 String(result.itineraries_id || '')
@@ -329,6 +329,65 @@ app.get('/success', (req, res) => {
 });
 
 // -------------------------
+// DOWNLOADS PAGE
+// -------------------------
+app.get('/downloads', (req, res) => {
+    const uploadsDir = path.join(__dirname, 'uploads');
+    const bookings = [];
+
+    if (fs.existsSync(uploadsDir)) {
+        const bookingFolders = fs.readdirSync(uploadsDir, { withFileTypes: true })
+            .filter(dirent => dirent.isDirectory())
+            .sort((a, b) => b.name.localeCompare(a.name)); // Sort descending
+
+        bookingFolders.forEach(folder => {
+            const folderPath = path.join(uploadsDir, folder.name);
+            const files = [];
+
+            try {
+                const fileList = fs.readdirSync(folderPath);
+                fileList.forEach(file => {
+                    const filePath = path.join(folderPath, file);
+                    const stats = fs.statSync(filePath);
+                    const ext = path.extname(file).toLowerCase().substring(1) || 'file';
+                    const size = formatFileSize(stats.size);
+                    files.push({
+                        name: file,
+                        ext: ext,
+                        size: size
+                    });
+                });
+            } catch (err) {
+                console.error('Error reading folder:', folderPath, err);
+            }
+
+            if (files.length > 0) {
+                bookings.push({
+                    name: folder.name,
+                    files: files.sort((a, b) => a.name.localeCompare(b.name))
+                });
+            }
+        });
+    }
+
+    res.send(
+        nunjucks.render('downloads.html', {
+            title: 'Downloads',
+            bookings: bookings
+        })
+    );
+});
+
+// Helper function to format file size
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+// -------------------------
 // DOWNLOAD EXCEL
 // -------------------------
 app.get('/download/excel', (req, res) => {
@@ -338,6 +397,34 @@ app.get('/download/excel', (req, res) => {
     }
     const fileName = path.basename(excelFile);
     res.download(excelFile, fileName, (err) => {
+        if (err) {
+            console.error('Download error:', err);
+        }
+    });
+});
+
+// -------------------------
+// DOWNLOAD FILE FROM UPLOADS
+// -------------------------
+app.get('/download/:booking/:file', (req, res) => {
+    const { booking, file } = req.params;
+    const filePath = path.join(__dirname, 'uploads', booking, file);
+    
+    // Security: prevent directory traversal
+    const uploadDir = path.join(__dirname, 'uploads', booking);
+    const normalizedPath = path.normalize(filePath);
+    const normalizedUploadDir = path.normalize(uploadDir);
+    
+    if (!normalizedPath.startsWith(normalizedUploadDir)) {
+        return res.status(403).send('Access denied.');
+    }
+
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).send('File not found.');
+    }
+
+    const fileName = path.basename(filePath);
+    res.download(filePath, fileName, (err) => {
         if (err) {
             console.error('Download error:', err);
         }

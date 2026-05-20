@@ -4,8 +4,79 @@ header {
   margin: 28px 0;
 }
 
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
 .wordmark {
   font-size: clamp(28px, 5vw, 44px);
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.2s;
+  display: inline-block;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.header-nav {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-link {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  text-decoration: none;
+  transition: color 0.2s;
+  padding: 6px 12px;
+  border-radius: 4px;
+
+  &:hover {
+    color: #007bff;
+    background-color: rgba(0, 123, 255, 0.08);
+  }
+}
+
+@media (max-width: 640px) {
+  .header-content {
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .header-nav {
+    width: 100%;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .nav-link {
+    font-size: 13px;
+    padding: 5px 10px;
+  }
+}
+
+.tagline {
+  margin-top: 10px;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--mid);
+}
+
+.rule {
+  margin: 20px auto 0;
+  width: 48px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
 }
 
 .tagline {

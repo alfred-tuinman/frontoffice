@@ -747,4 +747,59 @@
 </div>
 
 
+{% if resolvedLookups %}
+<script>
+// Auto-select fuzzy-matched lookup values
+// Green border = confident match, amber = needs confirmation
+const resolved = {{ resolvedLookups | dump | safe }};
+
+// Map DB column name -> select element ID
+const selectMap = {
+  'Countries_id':              'Countries_id',
+  'Currencies_id':             'Currencies_id',
+  'Vehicles_id':               'Vehicles_id',
+  'HotelTypes_id':             'HotelTypes_id',
+  'MealPlans_id':              'MealPlans_id',
+  'StartCities_id':            'StartCities_id',
+  'EndCities_id':              'EndCities_id',
+  'arr_cities_id':             'itin_arr_cities_id',
+  'dep_cities_id':             'itin_dep_cities_id',
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  Object.entries(resolved).forEach(([col, result]) => {
+    const elId = selectMap[col];
+    if (!elId || !result.id) return;
+    const sel = document.getElementById(elId);
+    if (!sel) return;
+
+    // Set the value
+    sel.value = String(result.id);
+
+    // Style based on confidence
+    if (result.status === 'matched') {
+      sel.style.borderColor = '#2a7a2a';
+      sel.style.background  = '#f0faf0';
+      sel.title = `✅ Auto-matched: "${result.name}" (score ${result.score})`;
+    } else {
+      // low confidence — amber highlight, needs user check
+      sel.style.borderColor = '#c07000';
+      sel.style.background  = '#fffbe6';
+      sel.title = `⚠ Low confidence match: "${result.name}" (score ${result.score}) — please verify`;
+
+      // Add a visible warning badge next to the label
+      const label = sel.closest('.field')?.querySelector('label');
+      if (label && !label.querySelector('.match-warn')) {
+        const badge = document.createElement('span');
+        badge.className = 'match-warn';
+        badge.textContent = '⚠ check';
+        badge.style.cssText = 'margin-left:6px;font-size:10px;background:#c07000;color:#fff;padding:1px 5px;border-radius:3px;font-weight:600';
+        label.appendChild(badge);
+      }
+    }
+  });
+});
+</script>
+{% endif %}
+
 {% endblock %}
