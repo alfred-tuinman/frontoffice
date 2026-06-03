@@ -1,0 +1,77 @@
+// ─────────────────────────────────────────────────────────────
+// _site-header.scss — Site header (BEM block)
+// ─────────────────────────────────────────────────────────────
+@use '../base/variables' as *;
+
+.site-header {
+  text-align: center;
+  margin: 28px 0;
+
+  &__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: $sp-lg;
+  }
+
+  &__logo {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 400;
+    text-decoration: none;
+    color: inherit;
+    transition: opacity $transition-fast;
+    display: inline-block;
+    line-height: 1;
+    letter-spacing: 0.02em;
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    em {
+      color: $color-gold;
+      font-style: italic;
+    }
+  }
+
+  &__nav {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+
+  &__link {
+    font-size: $font-size-base;
+    font-weight: 500;
+    color: #333;
+    text-decoration: none;
+    transition: color $transition-fast;
+    padding: 6px 12px;
+    border-radius: $radius;
+
+    &:hover {
+      color: #007bff;
+      background-color: rgba(0, 123, 255, 0.08);
+    }
+  }
+
+  @media (max-width: 640px) {
+    &__inner {
+      justify-content: center;
+      gap: 12px;
+    }
+
+    &__nav {
+      width: 100%;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    &__link {
+      font-size: 13px;
+      padding: 5px 10px;
+    }
+  }
+}

@@ -1,0 +1,107 @@
+// ─────────────────────────────────────────────────────────────
+// _booking-list.scss — Booking folders & file rows (downloads / uploads)
+// ─────────────────────────────────────────────────────────────
+@use '../base/variables' as *;
+
+.booking-list {
+  margin-top: $sp-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $sp-md;
+}
+
+.booking-item {
+  border: 1px solid #e0e0e0;
+  border-radius: $radius;
+  padding: $sp-md;
+  background-color: #fafafa;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: $font-size-lg;
+    color: #333;
+    font-weight: 600;
+  }
+
+  &__file-count {
+    font-size: $font-size-sm;
+    color: $color-muted;
+    background: #efefef;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+.file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background-color: $color-white;
+  border-radius: $radius;
+  border: 1px solid #e8e8e8;
+
+  &__icon {
+    font-size: 20px;
+    min-width: 24px;
+  }
+
+  &__name {
+    flex: 1;
+    font-size: $font-size-base;
+    color: #333;
+    font-weight: 500;
+    word-break: break-word;
+  }
+
+  &__size {
+    font-size: $font-size-sm;
+    color: $color-muted;
+    min-width: 60px;
+    text-align: right;
+  }
+
+  &__empty {
+    font-size: 13px;
+    color: $color-muted;
+    margin: 8px 0;
+    font-style: italic;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px $sp-lg;
+
+  &__icon {
+    font-size: 48px;
+    display: block;
+    margin-bottom: $sp-md;
+  }
+
+  &__text {
+    color: $color-muted;
+    font-size: $font-size-lg;
+  }
+}

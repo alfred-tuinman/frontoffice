@@ -15,26 +15,85 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
 _DAYS = r'Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday'
 
-BOOKING_REF_RE = re.compile(r'booking\s+number\s+(\S+)', re.IGNORECASE)
-
-# Guest line: "Mr/Mrs First(s) Last Nationality DD.MM.YYYY ..."
-GUEST_RE = re.compile(
-    r'^\s*(Mr|Mrs|Ms|Dr)\.?\s+(.+?)\s+(\d{2}\.\d{2}\.\d{4})',
-    re.IGNORECASE | re.MULTILINE,
+# Date pattern — matches all common international date formats found in booking PDFs.
+# Normalisation of U+2010 non-breaking hyphens → ASCII hyphen is done in _normalise_text().
+#
+# Formats covered (separators may be . / - or space):
+#   DD.MM.YYYY  DD-MM-YYYY  DD/MM/YYYY          European / UK / India / Australia
+#   DD-Mon-YYYY DD Mon YYYY DD. Mon YYYY         Textual month, any region
+#   YYYY-MM-DD  YYYY/MM/DD                       ISO 8601, East Asia
+#   MM/DD/YYYY  MM-DD-YYYY                       United States
+_DATE_PAT = (
+    r'(?:'
+    r'\d{4}[\-/]\d{2}[\-/]\d{2}'            # YYYY-MM-DD / YYYY/MM/DD
+    r'|\d{2}[.\-/]\d{2}[.\-/]\d{4}'          # DD.MM.YYYY / DD-MM-YYYY / DD/MM/YYYY / MM/DD/YYYY
+    r'|\d{1,2}[.\-/\s][A-Za-z]{3,9}[.\-/\s]\d{4}'  # DD Mon YYYY / DD-Mon-YYYY / DD. Month YYYY
+    r')'
 )
 
-# Table row: "description N DD.MM.YYYY DD.MM.YYYY DayName DayName"
+# Booking reference — tries several common label phrasings in order
+_BOOKING_REF_PATTERNS = [
+    re.compile(r'booking\s+(?:number|no\.?|ref(?:erence)?)\s*[:\-]?\s*(\S+)', re.IGNORECASE),
+    re.compile(r'(?:reservation|voucher|confirmation)\s+(?:number|no\.?|ref(?:erence)?)\s*[:\-]?\s*(\S+)', re.IGNORECASE),
+    re.compile(r'(?:ref(?:erence)?|ref\.?)\s*[:\-]\s*(\S+)', re.IGNORECASE),
+    re.compile(r'(?:buchungsnummer|buchungs-nr\.?)\s*[:\-]?\s*(\S+)', re.IGNORECASE),
+]
+BOOKING_REF_RE = _BOOKING_REF_PATTERNS[0]  # kept for compat; _search_booking_ref used internally
+
+# Guest line — four increasingly-relaxed patterns tried in order:
+#   1. Salutation + name + any supported date   (DD.MM.YYYY or DD-Mon-YYYY)
+#   2. Salutation + name + YYYY-MM-DD date
+#   3. "Client:" / "Guest:" / "Passenger:" label + name (no date required)
+#   4. Salutation + name only (no date at all)
+_GUEST_PATTERNS = [
+    re.compile(r'^\s*(Mr|Mrs|Ms|Dr|Herr|Frau)\.?\s+(.+?)\s+(' + _DATE_PAT + r')', re.IGNORECASE | re.MULTILINE),
+    re.compile(r'^\s*(Mr|Mrs|Ms|Dr|Herr|Frau)\.?\s+(.+?)\s+(\d{4}-\d{2}-\d{2})',   re.IGNORECASE | re.MULTILINE),
+    re.compile(r'^(?:client|guest|passenger|travell?er|pax)\s*[:\-]\s*(Mr|Mrs|Ms|Dr|Herr|Frau)?\.?\s*(.+?)$', re.IGNORECASE | re.MULTILINE),
+    re.compile(r'^\s*(Mr|Mrs|Ms|Dr|Herr|Frau)\.?\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,4})\s*$', re.IGNORECASE | re.MULTILINE),
+]
+GUEST_RE = _GUEST_PATTERNS[0]  # kept for compat; _search_guests used internally
+
+# Table row: "description N <date> <date> DayName DayName"
+# Supports both DD.MM.YYYY and DD-Mon-YYYY date formats.
 TABLE_ROW_RE = re.compile(
     r'^(.*?)\s+(\d{1,2})\s+'
-    r'(\d{2}\.\d{2}\.\d{4})\s+(\d{2}\.\d{2}\.\d{4})\s+'
+    r'(' + _DATE_PAT + r')\s+(' + _DATE_PAT + r')\s+'
     r'(' + _DAYS + r')\s+(' + _DAYS + r')',
     re.IGNORECASE | re.MULTILINE,
 )
 
 # ── Date helpers ───────────────────────────────────────────────────────────────
 
+_DATE_FORMATS = [
+    # European / UK / India / Australia — DD first
+    '%d.%m.%Y', '%d-%m-%Y', '%d/%m/%Y',
+    # Textual month — DD Mon YYYY variants
+    '%d-%b-%Y', '%d %b %Y', '%d. %b %Y',
+    '%d-%B-%Y', '%d %B %Y', '%d. %B %Y',
+    # ISO 8601 — YYYY-MM-DD
+    '%Y-%m-%d', '%Y/%m/%d',
+    # United States — MM/DD/YYYY (tried last to avoid ambiguity)
+    '%m/%d/%Y', '%m-%d-%Y',
+]
+
 def _parse_date(s: str):
-    return datetime.strptime(s, '%d.%m.%Y').date()
+    s = s.strip()
+    for fmt in _DATE_FORMATS:
+        try:
+            return datetime.strptime(s, fmt).date()
+        except ValueError:
+            continue
+    raise ValueError(f"Unrecognised date format: {s!r}")
+
+
+def _normalise_text(text: str) -> str:
+    """Normalise typographic characters that break regex matching."""
+    # U+2010 NON-BREAKING HYPHEN → ASCII hyphen
+    text = text.replace('\u2010', '-')
+    # U+2011 NON-BREAKING HYPHEN, U+2012/2013/2014 dashes → hyphen
+    for ch in ('\u2011', '\u2012', '\u2013', '\u2014'):
+        text = text.replace(ch, '-')
+    return text
 
 def _fmt_date(d) -> str:
     return d.strftime('%d.%m.%Y')
@@ -49,6 +108,62 @@ def _date_range(start_str: str, end_str: str):
     while cur <= end:
         yield cur
         cur += timedelta(days=1)
+
+# ── Multi-pattern search helpers ───────────────────────────────────────────────
+
+def _search_booking_ref(raw_text: str) -> str:
+    """Try every booking-ref pattern and return the first match, or ''."""
+    for pat in _BOOKING_REF_PATTERNS:
+        m = pat.search(raw_text)
+        if m:
+            return m.group(1).strip()
+    return ''
+
+
+def _search_guests(raw_text: str) -> list:
+    """
+    Try each guest pattern in order of specificity.
+    Returns a deduplicated list of guest dicts as soon as any pattern finds matches.
+    """
+    # Patterns 0 & 1 — salutation + name (+ date); group(1)=title, group(2)=name_nat
+    for pat in _GUEST_PATTERNS[:2]:
+        guests, seen = [], set()
+        for m in pat.finditer(raw_text):
+            title    = (m.group(1) or '').strip().rstrip('.')
+            name_nat = m.group(2).strip()
+            first, last = _parse_name_nationality(name_nat)
+            key = (title.lower(), last.lower())
+            if key not in seen:
+                seen.add(key)
+                guests.append({'title': title or 'Mr', 'first_name': first, 'last_name': last})
+        if guests:
+            return guests
+
+    # Pattern 2 — "Client: [Title?] Name"
+    guests, seen = [], set()
+    for m in _GUEST_PATTERNS[2].finditer(raw_text):
+        title    = (m.group(1) or '').strip().rstrip('.')
+        name_raw = m.group(2).strip()
+        first, last = _parse_name_nationality(name_raw)
+        key = (title.lower(), last.lower())
+        if key not in seen:
+            seen.add(key)
+            guests.append({'title': title or 'Mr', 'first_name': first, 'last_name': last})
+    if guests:
+        return guests
+
+    # Pattern 3 — bare salutation + name, no date
+    guests, seen = [], set()
+    for m in _GUEST_PATTERNS[3].finditer(raw_text):
+        title    = (m.group(1) or '').strip().rstrip('.')
+        name_raw = m.group(2).strip()
+        first, last = _parse_name_nationality(name_raw)
+        key = (title.lower(), last.lower())
+        if key not in seen:
+            seen.add(key)
+            guests.append({'title': title or 'Mr', 'first_name': first, 'last_name': last})
+    return guests
+
 
 # ── Guest name parser ──────────────────────────────────────────────────────────
 
@@ -96,6 +211,16 @@ def _extract_city(desc: str) -> str | None:
     m = re.match(r'^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+\d+\s*:', desc)
     if m:
         return m.group(1).title()
+    # "[City]: [any hotel/lodge text]"  — e.g. "Chitwan: Sapana Lodge package..."
+    # Only matches if the word after the colon looks like a hotel name (title-case word),
+    # to avoid false positives on activity descriptions like "Transfer Chitwan - Kathmandu".
+    m = re.match(r'^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s*:\s*([A-Z][a-z])', desc)
+    if m:
+        return m.group(1).title()
+    # "[City] - [... Hotel / Lodge / Villa]" — dash-separated hotel rows
+    m = re.match(r'^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+-\s+', desc)
+    if m and re.search(r'hotel|lodge|villa|resort|inn|guest\s*house|palace', desc, re.IGNORECASE):
+        return m.group(1).title()
     return None
 
 
@@ -132,20 +257,24 @@ def _clean_activity(desc: str) -> str:
 
 def parse_pdf_rules(raw_text: str) -> dict:
 
-    # 1. Booking reference ─────────────────────────────────────────────────────
-    m = BOOKING_REF_RE.search(raw_text)
-    booking_ref = m.group(1) if m else ''
+    # ── Normalise typographic characters (e.g. U+2010 non-breaking hyphens) ──
+    raw_text = _normalise_text(raw_text)
 
-    # 2. Guests ────────────────────────────────────────────────────────────────
-    guests, seen = [], set()
-    for m in GUEST_RE.finditer(raw_text):
-        title    = m.group(1).strip()
-        name_nat = m.group(2).strip()
-        first, last = _parse_name_nationality(name_nat)
-        key = (title.lower(), last.lower())
-        if key not in seen:
-            seen.add(key)
-            guests.append({'title': title, 'first_name': first, 'last_name': last})
+    # ── DEBUG: set env var CONVERTER_DEBUG_TXT=path to dump extracted PDF text ─
+    import os as _os
+    _debug_path = _os.environ.get('CONVERTER_DEBUG_TXT', '')
+    if _debug_path:
+        try:
+            with open(_debug_path, 'w', encoding='utf-8') as _f:
+                _f.write(raw_text)
+        except Exception:
+            pass
+
+    # 1. Booking reference — tries multiple label phrasings ────────────────────
+    booking_ref = _search_booking_ref(raw_text)
+
+    # 2. Guests — tries multiple formats ──────────────────────────────────────
+    guests = _search_guests(raw_text)
 
     # 3. Parse table rows ──────────────────────────────────────────────────────
     rows = []
@@ -155,11 +284,12 @@ def parse_pdf_rules(raw_text: str) -> dict:
             continue
         if any(s in desc.lower() for s in _SKIP_PHRASES):
             continue
+        # Normalise dates to canonical DD.MM.YYYY so all dict lookups are consistent
         rows.append({
             'desc':       desc,
             'daynum':     int(m.group(2)),
-            'start_date': m.group(3),
-            'end_date':   m.group(4),
+            'start_date': _fmt_date(_parse_date(m.group(3))),
+            'end_date':   _fmt_date(_parse_date(m.group(4))),
             'day_from':   m.group(5),
         })
 
@@ -194,7 +324,7 @@ def parse_pdf_rules(raw_text: str) -> dict:
     all_row_dates = [_parse_date(r['start_date']) for r in rows] + \
                     [_parse_date(r['end_date'])   for r in rows]
     if not all_row_dates:
-        return {'quotation': {}, 'guests': guests, 'itinerary': []}
+        return {'quotation': {}, 'guests': guests, 'itinerary': [], 'parsing_success': False, 'parsing_errors': ['No itinerary rows found — the PDF table format may not be recognised.']}
 
     # Arrival = first date with actual rows (not just hotel coverage)
     # Departure = last row start date
@@ -215,14 +345,19 @@ def parse_pdf_rules(raw_text: str) -> dict:
         city, hotel_name = hotel_by_date.get(date_str, (None, None))
         day_rows = date_rows.get(date_str, [])
 
-        # Fallback city from non-hotel activity description
+        # Fallback city from non-hotel activity description.
+        # Skip section-header rows and exclude common non-city lead words.
+        _NON_CITY = {
+            'transfer', 'private', 'half', 'afternoon', 'the', 'in', 'on',
+            'intercity', 'daytrain', 'train', 'flight', 'module', 'overnight',
+            'kings', 'gods', 'coach', 'drive', 'day', 'full', 'early', 'late',
+        }
         if not city:
             for row in day_rows:
+                if _is_section_header(row):
+                    continue
                 m2 = re.match(r'^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s', row['desc'])
-                if m2 and m2.group(1).lower() not in (
-                    'transfer', 'private', 'half', 'afternoon', 'the',
-                    'intercity', 'daytrain', 'corbett', 'train',
-                ):
+                if m2 and m2.group(1).lower() not in _NON_CITY:
                     city = m2.group(1).title()
                     break
 
@@ -304,7 +439,30 @@ def parse_pdf_rules(raw_text: str) -> dict:
         'Comment':         None,
     }
 
-    return {'quotation': quotation, 'guests': guests, 'itinerary': itinerary}
+    # ── Validate required fields ───────────────────────────────────────────────
+    parsing_errors = []
+    if not booking_ref:
+        parsing_errors.append(
+            "Booking reference not found — check that the PDF contains a label "
+            "such as 'Booking No', 'Booking Number', or 'Ref'."
+        )
+    if not guests:
+        parsing_errors.append(
+            "Client name not found — check that the PDF lists passengers with a "
+            "salutation (Mr/Mrs/Ms/Dr) or a 'Client:' / 'Guest:' label."
+        )
+    elif not principal_name.strip('. '):
+        parsing_errors.append("Client name could not be parsed from the guest list.")
+
+    parsing_success = len(parsing_errors) == 0
+
+    return {
+        'quotation':       quotation,
+        'guests':          guests,
+        'itinerary':       itinerary,
+        'parsing_success': parsing_success,
+        'parsing_errors':  parsing_errors,
+    }
 
 
 # ── Public API ─────────────────────────────────────────────────────────────────
@@ -512,3 +670,38 @@ def build_excel(data: dict, output_path: str):
     build_db_sheet(wb.active, data.get("quotation", {}))
     build_itinerary_sheet(wb.create_sheet(), data)
     wb.save(output_path)
+
+
+def dump_pdf_text(pdf_path: str, out_path: str = None) -> str:
+    """
+    Extract raw text from a PDF and print the first 3000 chars to stdout.
+    Also saves the full text to out_path if given.
+    Call this from a one-off script to see exactly what pdfplumber extracts
+    — paste the output so patterns can be fixed.
+
+    Usage:
+        python - <<'EOF'
+        from converter import dump_pdf_text
+        dump_pdf_text("uploads/booking_XYZ/booking_XYZ.pdf", "debug_text.txt")
+        EOF
+    """
+    text = extract_pdf_text(pdf_path)
+    print("=" * 60)
+    print("PDF RAW TEXT (first 3000 chars)")
+    print("=" * 60)
+    print(text[:3000])
+    print("=" * 60)
+    if out_path:
+        with open(out_path, "w", encoding="utf-8") as f:
+            f.write(text)
+        print(f"Full text saved to: {out_path}")
+    return text
+
+
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) < 2:
+        print("Usage: python converter.py <path/to/file.pdf> [output_text.txt]")
+        sys.exit(1)
+    out = sys.argv[2] if len(sys.argv) > 2 else None
+    dump_pdf_text(sys.argv[1], out)

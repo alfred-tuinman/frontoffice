@@ -4,20 +4,6 @@
 @use 'variables' as *;
 @use 'fonts' as *;
 
-.wordmark {
-  font-family: "Cormorant Garamond";
-  font-size: 22px;
-  font-weight: 400;
-  color: $ink;
-  line-height: 1;
-  letter-spacing: 0.02em;
-
-  em {
-    color: $gold;
-    font-style: italic;
-  }
-}
-
 .tagline {
   margin-top: 10px;
   font-size: 11px;

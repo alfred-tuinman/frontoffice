@@ -1,9 +1,13 @@
 // ─────────────────────────────────────────────────────────────
-// _review.scss — Review & submit form page
+// _site-footer.scss — Site footer (BEM block)
 // ─────────────────────────────────────────────────────────────
-@use '../base/variables' as *;
 
-.review-page {
-  padding-top: 28px;
-  padding-bottom: $sp-lg;
+.site-footer {
+  margin-top: 44px;
+  font-size: 10.5px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--mid);
+  opacity: 0.5;
+  text-align: center;
 }

@@ -59,15 +59,19 @@ npm run sass        # SCSS compiler watch
 ## Project Structure
 
 ```
-├── server.js                 # Express app (main entry point)
-├── app.py                    # Legacy Flask backend (optional)
+├── server.js                 # Express bootstrap (middleware, listen)
+├── lib/                      # Config, booking helpers, multer, nunjucks
+├── routes/                   # Express routers by feature
 ├── converter.py              # Rule-based PDF parser + Excel builder
 ├── parse_booking.py          # Standalone parser wrapper (outputs JSON)
 ├── build_excel_wrapper.py    # Excel generation wrapper
 ├── templates/                # Nunjucks HTML templates
 │   ├── index.html           # Upload form
 │   ├── review.html          # Data review & edit form
-│   └── base.html            # Layout
+│   ├── success.html         # Success confirmation page
+│   ├── downloads.html       # Download management page
+│   ├── base.html            # Layout
+│   └── partials/            # Reusable template components
 ├── static/                   # CSS, JS, fonts
 ├── scss/                     # SCSS source files
 └── uploads/                  # PDF & Excel output (organized by booking ref)
@@ -80,18 +84,23 @@ npm run sass        # SCSS compiler watch
 | GET | `/` | Upload form |
 | POST | `/upload` | Parse PDF & generate Excel |
 | GET | `/review` | Review parsed data |
+| GET | `/success` | Success confirmation page |
+| GET | `/downloads` | Download management page |
 | GET | `/download/excel` | Download generated Excel |
+| GET | `/upload-notes` | Upload extra files to a booking folder |
+| POST | `/upload-notes/:booking` | Save uploaded notes files |
 
 ## Configuration
 
 - **Database** (Flask only): Edit `config.py` for MSSQL server details
-- **Port**: 3010 (configurable in `server.js`)
+- **Port**: 3010 (set `PORT` in `.env` or `lib/config.js`)
+- **Python**: set `PYTHON_EXE` in `.env` if not using the default path
 - **Max Upload**: 20MB (set in `config.py`)
 
 ## Notes
 
 - All parsing is **local & offline** (no external services)
 - Excel files include professional styling with color-coded sheets
-- Folder organization: `uploads/{QuotationRef}/{QuotationRef}.pdf|xlsx`
+- Folder organization: `uploads/{Surname}_{QuotationRef}/{QuotationRef}.pdf|xlsx` (surname omitted if unknown)
 - Session-based data flow for multi-step upload → review → download
 

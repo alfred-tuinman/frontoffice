@@ -1,21 +1,19 @@
 // ─────────────────────────────────────────────────────────────
-// _home.scss — Upload / index page
+// pages/_downloads.scss — Downloads page layout
 // ─────────────────────────────────────────────────────────────
 @use '../base/variables' as *;
 
-// The upload page is mostly composed via shared components.
-// Page-specific overrides live here.
+.downloads {
+  &__picker {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-md;
+    margin-top: $sp-md;
+  }
 
-.upload-card {
-  // Slightly narrower max-width for the centred upload card
-  max-width: $container-sm;
-}
-
-#file-pill {
-  text-align: center;
-}
-
-#submit-btn {
-  text-align: center;
-  width: 100%;
+  &__panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
 }

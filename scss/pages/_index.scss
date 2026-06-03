@@ -1,9 +1,6 @@
 // ============================================================
-// pages/_index.scss — forwards all page styles
+// pages/_index.scss — page-specific layout only
 // ============================================================
-@forward 'header';
-@forward 'footer';
-
-@forward 'home';
-@forward 'review';
-@forward 'success';
+@forward 'converter';
+@forward 'downloads';
+@forward 'upload-notes';

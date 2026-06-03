@@ -2,17 +2,19 @@
 
 {% block content %}
 
-<div class="card">
-  <div class="check-wrap">✅</div>
+<div class="card success-panel container--sm">
+  <span class="success-panel__icon" aria-hidden="true">✅</span>
 
-  <h1>{% if is_update %}Booking Updated{% else %}Booking Saved{% endif %}</h1>
+  <h1 class="success-panel__title">
+    {% if is_update %}Booking Updated{% else %}Booking Saved{% endif %}
+  </h1>
 
-  <p class="sub">
+  <p class="success-panel__message">
     {{ client }} has been
     {% if is_update %}<strong>updated</strong>{% else %}<strong>saved</strong>{% endif %}
     in the database.
   </p>
-  <p class="ref-note">Ref: {{ quotation_ref }}</p>
+  <p class="success-panel__ref">Ref: {{ quotation_ref }}</p>
 
   <div class="ids-grid">
     <div class="id-box quot">
@@ -27,12 +29,15 @@
     </div>
   </div>
 
-  {% if has_excel %}
-  <a href="/download/excel" class="btn-dl">⬇ Download Confirmation Excel</a>
-  {% endif %}
+  <div class="success-panel__actions">
+    {% if has_excel %}
+      <a href="/download/excel" class="btn btn--download btn--full">
+        ⬇ Download Confirmation Excel
+      </a>
+    {% endif %}
 
-  <a href="/" class="btn-new">← Convert another booking</a>
+    <a href="/" class="btn btn--ghost btn--full">← Convert another booking</a>
+  </div>
 </div>
-
 
 {% endblock %}

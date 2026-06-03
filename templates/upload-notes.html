@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block header_extra %}
+<div class="tagline">
+  Upload Files to a Booking
+</div>
+<div class="rule"></div>
+{% endblock %}
+
+{% block content %}
+
+<div class="card container--sm upload-notes">
+  <h1>Upload Files</h1>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert--{{ message.type }}">
+        {{ message.text }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  {% if bookings|length > 0 %}
+    <p class="sub">Select a booking folder, then attach one or more files.</p>
+
+    <form
+      id="upload-notes-form"
+      class="upload-notes__form"
+      method="POST"
+      action=""
+      enctype="multipart/form-data"
+    >
+      <div class="field">
+        <label class="form-label" for="booking-select">Booking folder</label>
+        <select id="booking-select" class="form-select" required>
+          <option value="" selected disabled>Choose a booking…</option>
+          {% for booking in bookings %}
+            <option value="{{ booking.name }}">
+              {{ booking.name }}{% if booking.files|length %} — {{ booking.files|length }} file{% if booking.files|length != 1 %}s{% endif %}{% endif %}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div id="upload-notes-panel" class="upload-notes__panel" hidden>
+        <div class="file-badges" id="existing-files" hidden></div>
+
+        <div class="dropzone dropzone--notes" id="upload-dropzone">
+          <span class="dropzone__icon">☁️</span>
+          <p class="dropzone__label">
+            Drag &amp; drop files here, or
+            <label class="dropzone__link" for="upload-files">browse</label>
+          </p>
+          <p class="dropzone__hint">PDF, Excel, Word, images — any format accepted</p>
+          <input
+            id="upload-files"
+            type="file"
+            name="files"
+            multiple
+            class="dropzone__input"
+          />
+          <div class="dropzone__file-list" id="selected-files"></div>
+        </div>
+
+        <button type="submit" class="btn btn--upload btn--full" id="upload-submit" disabled>
+          ⬆ Upload files
+        </button>
+      </div>
+    </form>
+
+    <script type="application/json" id="upload-notes-bookings">{{ bookingsJson | safe }}</script>
+
+  {% else %}
+    <div class="empty-state">
+      <span class="empty-state__icon">📭</span>
+      <p class="empty-state__text">No booking folders found. Convert a booking first to create one.</p>
+    </div>
+  {% endif %}
+
+  <a href="/" class="btn btn--secondary btn--full" style="margin-top: 24px;">
+    ← Convert a new booking
+  </a>
+</div>
+
+{% endblock %}

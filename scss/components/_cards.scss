@@ -9,11 +9,12 @@
   border: 1px solid $cream;
   border-radius: $radius;
   box-shadow: $shadow;
+  padding: .5rem;
 }
 
 .upload-card {
-    max-width: 600px;
-    margin: 5rem auto;
+  max-width: $container-sm;
+  margin: 5rem auto;
 }
 
 .review-card {

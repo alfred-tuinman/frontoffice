@@ -6,6 +6,11 @@
   max-width: 960px;
   margin: 0 auto;
   padding: 0 20px;
+
+  &--sm {
+    max-width: $container-sm;
+    margin-inline: auto;
+  }
 }
 
 /* ── Grid utility (replaces Bootstrap .row / .col-md-N) ─────── */

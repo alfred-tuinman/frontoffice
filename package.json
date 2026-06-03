@@ -16,7 +16,8 @@
   },
   "scripts": {
     "server": "node server.js",
-    "sass": "sass --watch scss/main.scss:static/css/main.css",
+    "sass": "sass --watch scss/main.scss:static/css/main.css --embed-sources",
+    "sass:build": "sass scss/main.scss:static/css/main.css --embed-sources",
     "dev": "concurrently \"npm run server\" \"npm run sass\""
   },
   "keywords": [],
